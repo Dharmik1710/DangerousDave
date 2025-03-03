@@ -3,5 +3,13 @@ name = "dangerous-dave"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "dangerous_dave"
+path = "src/lib.rs"
+
+[[bin]]
+name = "dangerous-dave"
+path = "src/main.rs"
+
 [dependencies]
-sdl2 = "0.34.5"
+sdl2 = "0.37.0"
