@@ -20,6 +20,9 @@ pub fn init_sdl(title: &str, width: u32, height: u32) -> (Sdl, WindowCanvas) {
         .build()
         .expect("Failed to create a window");
 
+    // // Enable Fullscreen Mode
+    // window.set_fullscreen(FullscreenType::Desktop).expect("Failed to set fullscreen mode");
+
     // Create a canvas (hardware-accelerated if available)
     let canvas: Canvas<Window> = window
         .into_canvas()
