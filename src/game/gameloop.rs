@@ -1,75 +1,64 @@
-use sdl2::event::Event;
+use crate::game::level_utils::init_level;
+use crate::input::handle_input;
+use crate::render::render_visible_batches;
+use crate::resources::{
+    app_resources::AppResources,
+    state::GameState,
+};
 use sdl2::keyboard::Keycode;
-use sdl2::image::LoadTexture;
-use sdl2::video::FullscreenType;
+use sdl2::{
+    event::Event,
+    image::LoadTexture,
+    render::{Texture, TextureCreator},
+    video::WindowContext,
+};
+// use std::time::{Duration, Instant};
 
-use crate::graphics::init_sdl;
-use crate::graphics::rendering::draw_wall_boundary;
-
+// const TARGET_FPS: u32 = 60; // Adjust to your desired FPS
+// const FRAME_DELAY: Duration = Duration::from_millis(1000 / TARGET_FPS as u64);
 
 /// Start the main game loop
-pub fn start() {
-    // 1. Initialize SDL2 and create a canvas
-    let (sdl_context, mut canvas) = init_sdl(
-        "Dangerous Dave - Static Wall Example",
-        800,  // width
-        600,  // height
-    );
+pub fn start(state: &mut GameState) -> Result<(), String> {
+    /// 2. Init assets
+    let mut app_resources = AppResources::new()?;
 
-    // full screen(without explicitly creating windows mutable in graphics::init_sdl)
-    canvas.window_mut().set_fullscreen(FullscreenType::Desktop).expect("Failed to set fullscreen mode");
+    // load the texture
+    let texture_creator: TextureCreator<WindowContext> = app_resources.canvas.texture_creator();
+    let texture: Texture = texture_creator
+        .load_texture("assets/dangerous_dave_game_resources.bmp")
+        .map_err(|e| format!("Texture loading error: {}", e))?;
 
-    // 2. Create an event pump to poll for events
-    let mut event_pump = sdl_context
-        .event_pump()
-        .expect("Could not obtain SDL Event Pump");
-    
-    // 2. Load the sprite sheet as a texture
-    //    If you're using sdl2_image, you can do:
-    let texture_creator = canvas.texture_creator();
-    let texture = texture_creator
-    .load_texture("assets/dave_tiles.png")
-    .expect("Could not load the sprite sheet");
-
-    // 3. Draw wall boundary
-    // draw_wall_boundary(&mut canvas, &texture);
+    // load level
+    init_level(state, &app_resources);
 
     // 4. Main game loop
     'running: loop {
-        // Process events
-        for event in event_pump.poll_iter() {
-            match event {
-                // If the user clicks the close window button
-                Event::Quit { .. } => {
-                    println!("User requested quit.");
-                    break 'running;
-                }
-                // If the user presses `Q`
-                Event::KeyDown {
-                    keycode: Some(Keycode::Q),
-                    ..
-                } => {
-                    println!("User pressed 'Q'. Exiting...");
-                    break 'running;
-                }
-                _ => {}
-            }
+
+        // // This is done to control the fps
+        // let frame_start = Instant::now(); // Record frame start time
+
+
+        // 3. Handle input
+        if handle_input(&mut app_resources, state) {
+            break; // Exit loop if `handle_input()` returns `true`
         }
 
-        // Clear the screen to black before drawing
-        // canvas.set_draw_color(sdl2::pixels::Color::RGB(0, 0, 0));
-        // canvas.clear();
+        // 4. Update game
+        // update_game();
 
-        // 3. Get the "wall" sprite sub-rectangle
-        // draw_wall_boundary(&mut canvas, &texture, &wall_sprite);
 
-        // 3. Draw wall boundary
-        draw_wall_boundary(&mut canvas, &texture);
+        // 5. Render
+        render_visible_batches(&mut app_resources, state, &texture);
 
-        // Present the final image on screen
-        canvas.present();
+        // // Calculate frame duration and delay if necessary
+        // let frame_time = frame_start.elapsed();
+        // if frame_time < FRAME_DELAY {
+        //     std::thread::sleep(FRAME_DELAY - frame_time);
+        // }
 
     }
 
     println!("Game loop has ended. Cleaning up...");
+
+    Ok(())
 }

@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug Rust Program",
+            "program": "/Users/dharmik_patel/Documents/Projects and Assignments/dangerousDave/target/debug/dangerous-dave",
+            "args": [],
+            "cwd": "/Users/dharmik_patel/Documents/Projects and Assignments/dangerousDave",
+            "console": "integratedTerminal",
+            "stopOnEntry": false
+        }
+    ]
+}
