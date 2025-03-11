@@ -18,9 +18,9 @@ pub struct DaveState {
     pub trophy: bool,    // Flag: Dave has collected the level trophy
 
     // Jetpack info: fuel level and delay timer
-    pub jetpack: u32,        // Fuel level (0 if not active)
-    pub jetpack_delay: u32,  // Delay to prevent rapid toggling
-    pub jump_timer: u32,     // Timer controlling jump characteristics
+    pub jetpack: u32,       // Fuel level (0 if not active)
+    pub jetpack_delay: u32, // Delay to prevent rapid toggling
+    pub jump_timer: u32,    // Timer controlling jump characteristics
 
     // Last known direction Dave is facing
     pub last_dir: Direction,

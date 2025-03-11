@@ -55,8 +55,6 @@ pub fn init_level(state: &mut GameState, app_resources: &AppResources) -> Result
     // Create hashmap for rendering
     create_visible_tile_batches(state, app_resources);
 
-
-
     Ok(())
 }
 
@@ -88,8 +86,9 @@ fn update_game_state(state: &mut GameState, app_resources: &AppResources, tiles:
     state.level.raw = tiles;
 
     // Set camera properties
-    let tiles_viewport_x: u8 =
-        (app_resources.canvas.window().size().0 / (state.camera.tile_size * state.camera.scale) as u32) as u8;
+    let tiles_viewport_x: u8 = (app_resources.canvas.window().size().0
+        / (state.camera.tile_size * state.camera.scale) as u32)
+        as u8;
     state.camera.left_boundary = 0;
     state.camera.right_boundary =
         (tiles_viewport_x - state.camera.scroll_threshold) as i32 * tiles_viewport_x as i32;

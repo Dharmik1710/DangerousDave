@@ -49,7 +49,6 @@ pub fn render_visible_batches(
     state: &GameState,
     texture: &Texture,
 ) {
-
     app_resources.canvas.set_draw_color(Color::RGB(0, 0, 0));
     app_resources.canvas.clear();
 
@@ -58,11 +57,13 @@ pub fn render_visible_batches(
         let src_rect: Rect = get_offset(tile_index);
 
         for &dest_rect in batch.iter() {
-            app_resources.canvas.copy(texture, Some(src_rect), dest_rect).unwrap();
+            app_resources
+                .canvas
+                .copy(texture, Some(src_rect), dest_rect)
+                .unwrap();
         }
     }
 
     // Future rendering logic here
     app_resources.canvas.present();
-
 }

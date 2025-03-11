@@ -1,9 +1,9 @@
 pub mod action_flags;
 pub mod app_resources;
 pub mod bullet;
+pub mod camera;
 pub mod dave_state;
 pub mod direction;
-pub mod camera;
 pub mod level;
 pub mod monster_state;
 pub mod sprite;

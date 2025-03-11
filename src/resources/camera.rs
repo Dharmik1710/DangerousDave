@@ -9,7 +9,7 @@ pub struct Camera {
     pub scroll_threshold: u8, // Number of tiles before screen moves
     pub tiles_viewport_x: u8,
     pub tile_size: u8,
-    pub scale: u8
+    pub scale: u8,
 }
 
 impl Default for Camera {
@@ -21,7 +21,7 @@ impl Default for Camera {
             scroll_threshold: 2,
             tiles_viewport_x: 0,
             tile_size: 16, // scaling 16x16 tile by factor of 3
-            scale: 4
+            scale: 4,
         }
     }
 }

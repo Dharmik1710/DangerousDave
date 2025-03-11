@@ -1,7 +1,7 @@
+use crate::resources::app_resources::AppResources;
+use crate::resources::state::GameState;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use crate::resources::state::GameState;
-use crate::resources::app_resources::AppResources;
 
 // pub fn handle_input(app_resources: &mut AppResources, state: &mut GameState) -> bool {
 //     // Process events
@@ -42,7 +42,10 @@ pub fn handle_input(app_resources: &mut AppResources, state: &mut GameState) -> 
                 println!("User requested quit.");
                 return true;
             }
-            Event::KeyDown { keycode: Some(Keycode::Q), .. } => {
+            Event::KeyDown {
+                keycode: Some(Keycode::Q),
+                ..
+            } => {
                 println!("User pressed 'Q'. Exiting...");
                 return true;
             }

@@ -1,5 +1,5 @@
-pub mod gameloop; // Expose the `gameloop` module
 pub mod game_utils;
+pub mod gameloop; // Expose the `gameloop` module
 pub mod level_utils;
 
 use crate::resources::state::GameState;
