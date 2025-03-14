@@ -34,26 +34,26 @@ impl InputHandler {
                     println!("User pressed 'Q' or 'Escape'. Exiting...");
                     return true;
                 }
-                Event::KeyDown {
-                    keycode: Some(Keycode::A),
-                    ..
-                }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Left),
-                    ..
-                } => {
-                    state.camera.move_left();
-                }
-                Event::KeyDown {
-                    keycode: Some(Keycode::D),
-                    ..
-                }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Right),
-                    ..
-                } => {
-                    state.camera.move_right();
-                }
+                // Event::KeyDown {
+                //     keycode: Some(Keycode::A),
+                //     ..
+                // }
+                // | Event::KeyDown {
+                //     keycode: Some(Keycode::Left),
+                //     ..
+                // } => {
+                //     state.camera.move_left();
+                // }
+                // Event::KeyDown {
+                //     keycode: Some(Keycode::D),
+                //     ..
+                // }
+                // | Event::KeyDown {
+                //     keycode: Some(Keycode::Right),
+                //     ..
+                // } => {
+                //     state.camera.move_right();
+                // }
                 _ => {} // Ignore other events
             }
         }

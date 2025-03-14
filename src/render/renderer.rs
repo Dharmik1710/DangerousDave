@@ -1,13 +1,15 @@
+use sdl2::rect::Rect;
 use sdl2::render::{Canvas, Texture, TextureCreator};
 use sdl2::video::{Window, WindowContext};
 use sdl2::Sdl;
 
 use super::tile_atlas::TileAtlas;
+use crate::game::dave::Dave;
+use crate::game::level::Level;
 use crate::game::state::GameState;
 
 pub struct Renderer {
     pub canvas: Canvas<Window>,
-    pub texture_creator: TextureCreator<WindowContext>,
 }
 
 impl Renderer {
@@ -30,14 +32,7 @@ impl Renderer {
             .set_fullscreen(sdl2::video::FullscreenType::Desktop)
             .expect("Failed to set fullscreen mode");
 
-        let texture_creator = canvas.texture_creator();
-
-        // udpate
-
-        Ok(Self {
-            canvas,
-            texture_creator,
-        })
+        Ok(Self { canvas })
     }
 
     // /// ✅ Corrected `load_texture()` to properly assign texture
@@ -51,27 +46,17 @@ impl Renderer {
     pub fn render(&mut self, state: &GameState, texture: &Texture) {
         self.canvas.clear();
 
-        self.render_tiles(state, texture);
-        // Self::render_player(&state.player, canvas, texture);
+        self.render_tiles(&state.level, texture);
+        self.render_dave(&state.dave, texture);
+
         // Self::render_enemies(&state.enemies, canvas, texture);
         // Self::render_bullets(&state.bullets, canvas, texture);
 
         self.canvas.present();
     }
 
-    // fn render_internal(state: &GameState, canvas: &mut Canvas<Window>, texture: &Texture) {
-    //     canvas.clear();
-
-    //     Self::render_tiles(state, canvas, texture);
-    //     Self::render_player(&state.player, canvas, texture);
-    //     Self::render_enemies(&state.enemies, canvas, texture);
-    //     Self::render_bullets(&state.bullets, canvas, texture);
-
-    //     canvas.present();
-    // }
-
-    fn render_tiles(&mut self, state: &GameState, texture: &Texture) {
-        for (tile_id, rects) in &state.level.batches {
+    fn render_tiles(&mut self, level: &Level, texture: &Texture) {
+        for (tile_id, rects) in &level.batches {
             let src_rect = TileAtlas::get_offset(*tile_id);
             for rect in rects {
                 if let Err(e) = self.canvas.copy(texture, src_rect, *rect) {
@@ -81,12 +66,13 @@ impl Renderer {
         }
     }
 
-    // fn render_player(player: &Player, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, texture: &Texture) {
-    //     let dest_rect = Rect::new(player.x, player.y, 32, 32);
-    //     if let Err(e) = canvas.copy(texture, None, dest_rect) {
-    //         eprintln!("Failed to render player: {}", e);
-    //     }
-    // }
+    fn render_dave(&mut self, dave: &Dave, texture: &Texture) {
+        let src_rect = TileAtlas::get_dave();
+        let dest_rect = Rect::new(dave.px, dave.py, dave.w as u32, dave.h as u32);
+        if let Err(e) = self.canvas.copy(texture, src_rect, dest_rect) {
+            eprintln!("Failed to render dave: {}", e);
+        }
+    }
 
     // fn render_enemies(enemies: &[Enemy], canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, texture: &Texture) {
     //     for enemy in enemies {

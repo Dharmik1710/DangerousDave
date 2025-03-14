@@ -179,4 +179,10 @@ impl TileAtlas {
     pub fn has_tile(tile_id: u8) -> bool {
         TILE_MAP.contains_key(&tile_id)
     }
+
+    /// ✅ get dave tile
+    pub fn get_dave() -> Rect {
+        let dave_tile = 54;
+        *TILE_MAP.get(&dave_tile).unwrap_or(&Rect::new(0, 0, 0, 0))
+    }
 }

@@ -1,38 +1,43 @@
 use crate::resources::direction::Direction;
 
 #[derive(Debug, Clone)]
-pub struct Player {
+pub struct Dave {
     pub x: u16,
     pub y: u16,
+    pub px: i32,
+    pub py: i32,
+    pub h: u16,
+    pub w: u16,
     pub speed: u8,
     pub direction: Direction,
     pub on_ground: bool,
     pub jumping: bool,
 }
 
-impl Default for Player {
-    fn default() -> Self {
+impl Dave {
+    pub fn new(scale: f32) -> Self {
         Self {
             x: 0,
-            y: 0, // Initial spawn position
+            y: 0,
+            px: 0,
+            py: 0,
+            h: (16.0 * scale).round() as u16,
+            w: (20.0 * scale).round() as u16,
             speed: 0,
-            direction: Direction::Right,
+            direction: Direction::Chill,
             on_ground: true,
             jumping: false,
         }
     }
-}
+    pub fn move_left(&mut self) {
+        self.x -= self.speed;
+        self.direction = Direction::Left;
+    }
 
-impl Player {
-    // pub fn move_left(&mut self) {
-    //     self.x -= self.speed;
-    //     self.direction = Direction::Left;
-    // }
-
-    // pub fn move_right(&mut self) {
-    //     self.x += self.speed;
-    //     self.direction = Direction::Right;
-    // }
+    pub fn move_right(&mut self) {
+        self.x += self.speed;
+        self.direction = Direction::Right;
+    }
 
     // pub fn jump(&mut self) {
     //     if self.on_ground {
@@ -42,9 +47,11 @@ impl Player {
     //     }
     // }
 
-    pub fn update_position(&mut self, pos: (u16, u16)) {
+    pub fn update_position(&mut self, pos: (u16, u16), tile_size: u16) {
         self.x = pos.0;
         self.y = pos.1;
+        self.px = (pos.0 * tile_size) as i32;
+        self.py = (pos.1 * tile_size) as i32;
     }
 
     // pub fn update(&mut self) {

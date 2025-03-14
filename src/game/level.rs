@@ -5,14 +5,12 @@ use std::io::{Read, Result};
 
 use super::camera::Camera;
 
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Level {
     pub tiles: Vec<u8>,
     pub batches: HashMap<u8, Vec<Rect>>,
-    pub start_position: (u16, u16),
+    pub dave_start_pos: (u16, u16),
 }
-
 
 impl Level {
     /// Loads level data from file and sets Dave's start position
@@ -23,15 +21,22 @@ impl Level {
         file.read_exact(&mut buffer)?;
 
         // Example: Retrieve Dave’s start position from a predefined table or metadata
-        let start_position = match level_num {
-            1 => (50, 100), // Example coordinates for level 1
-            2 => (60, 200), // Example for level 2
-            3 => (70, 300),
+        let dave_start_pos = match level_num {
+            1 => (2, 8),
+            2 => (1, 8),
+            3 => (2, 5),
+            4 => (1, 5),
+            5 => (2, 8),
+            6 => (2, 8),
+            7 => (1, 2),
+            8 => (2, 8),
+            9 => (6, 1),
+            10 => (2, 8),
             _ => (0, 0), // Default fallback
         };
 
         self.tiles = buffer[256..1256].to_vec();
-        self.start_position = start_position;
+        self.dave_start_pos = dave_start_pos;
 
         Ok(())
     }
@@ -39,12 +44,12 @@ impl Level {
     pub fn update_visible_tiles(&mut self, camera: &Camera) {
         let mut visible_tiles: HashMap<u8, Vec<Rect>> = HashMap::new();
 
-        let display_tile_size = (camera.tile_size as f32 * camera.scale).round() as i32;
+        let display_tile_size = camera.tile_size as u32;
         let total_columns = 100; // Fixed level width
         let total_rows = 10; // Fixed number of rows
 
-        let start_col = camera.x_offset; // Leftmost visible tile
-        let end_col = (camera.x_offset + camera.tiles_viewport_x as i32).min(total_columns);
+        let start_col = camera.x; // Leftmost visible tile
+        let end_col = (camera.x + camera.tiles_viewport_x as u32).min(total_columns);
 
         for row in 0..total_rows {
             for col in start_col..end_col {
@@ -54,8 +59,8 @@ impl Level {
                     continue; // Skip empty tiles
                 }
 
-                let dest_x = (col - start_col) * display_tile_size;
-                let dest_y = row * display_tile_size;
+                let dest_x = ((col - start_col) * display_tile_size) as i32;
+                let dest_y = (row * display_tile_size) as i32;
 
                 let rect = Rect::new(
                     dest_x,
@@ -63,10 +68,7 @@ impl Level {
                     display_tile_size as u32,
                     display_tile_size as u32,
                 );
-                visible_tiles
-                    .entry(tile_index)
-                    .or_default()
-                    .push(rect);
+                visible_tiles.entry(tile_index).or_default().push(rect);
             }
         }
         self.batches = visible_tiles;
