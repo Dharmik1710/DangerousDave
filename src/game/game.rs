@@ -1,10 +1,10 @@
-use sdl2::Sdl;
-use crate::game::state::GameState;
 use crate::game::game_loop::GameLoop;
+use crate::game::state::GameState;
+use sdl2::Sdl;
 
 pub struct Game {
     state: GameState,
-    sdl_cxt: Sdl
+    sdl_cxt: Sdl,
 }
 
 impl Game {

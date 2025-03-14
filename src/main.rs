@@ -12,7 +12,7 @@ fn main() {
             return;
         }
     };
-    
+
     if let Err(e) = game.run() {
         error!("Game encountered an error: {}", e);
         std::process::exit(1);

@@ -1,17 +1,12 @@
+use sdl2::render::{Canvas, Texture, TextureCreator};
+use sdl2::video::{Window, WindowContext};
+use sdl2::Sdl;
+
 use super::tile_atlas::TileAtlas;
 use crate::game::bullet::Bullet;
 use crate::game::enemy::Enemy;
 use crate::game::player::Player;
 use crate::game::state::GameState;
-use crate::resources::app_resources::AppResources;
-use crate::resources::texture_manager;
-use sdl2::image::LoadTexture;
-use sdl2::rect::Rect;
-use sdl2::render::{Canvas, Texture, TextureCreator};
-use sdl2::video::{Window, WindowContext};
-use sdl2::Sdl;
-use std::cell::RefCell;
-use std::rc::Rc;
 
 pub struct Renderer {
     pub canvas: Canvas<Window>,
@@ -40,7 +35,7 @@ impl Renderer {
 
         let texture_creator = canvas.texture_creator();
 
-        // udpate 
+        // udpate
 
         Ok(Self {
             canvas,

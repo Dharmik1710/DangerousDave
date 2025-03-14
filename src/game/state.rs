@@ -1,10 +1,10 @@
-use crate::render::renderer::{self, Renderer};
+use crate::render::renderer::Renderer;
 
-use super::level::Level;
-use super::player::Player;
-use super::enemy::Enemy;
 use super::bullet::Bullet;
 use super::camera::Camera;
+use super::enemy::Enemy;
+use super::level::Level;
+use super::player::Player;
 
 #[derive(Debug, Clone)]
 pub struct GameState {
@@ -36,8 +36,7 @@ impl Default for GameState {
 }
 
 impl GameState {
-    pub fn init_level(&mut self, renderer: &Renderer){
-        
+    pub fn init_level(&mut self, renderer: &Renderer) {
         // load the level
         self.level.load(self.current_level);
 
@@ -48,7 +47,6 @@ impl GameState {
         self.level.update_visible_tiles(&self.camera);
 
         // update player init position
-        self.player.update_position(self.level.start_position);      
-
+        self.player.update_position(self.level.start_position);
     }
 }

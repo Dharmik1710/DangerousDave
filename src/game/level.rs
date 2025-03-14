@@ -1,16 +1,15 @@
-use crate::game::state::GameState;
 use sdl2::rect::Rect;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Result};
 
-use super::camera::{self, Camera};
+use super::camera::Camera;
 
 #[derive(Debug, Clone)]
 pub struct Level {
     pub tiles: Vec<u8>,
     pub batches: HashMap<u8, Vec<Rect>>,
-    pub start_position: (u16, u16)
+    pub start_position: (u16, u16),
 }
 
 impl Default for Level {
@@ -33,8 +32,8 @@ impl Level {
 
         // Example: Retrieve Dave’s start position from a predefined table or metadata
         let start_position = match level_num {
-            1 => (50, 100),  // Example coordinates for level 1
-            2 => (60, 200),  // Example for level 2
+            1 => (50, 100), // Example coordinates for level 1
+            2 => (60, 200), // Example for level 2
             3 => (70, 300),
             _ => (0, 0), // Default fallback
         };
@@ -44,11 +43,11 @@ impl Level {
 
         Ok(())
     }
-    
+
     pub fn update_visible_tiles(&mut self, camera: &Camera) {
         let mut visible_tiles: HashMap<u8, Vec<Rect>> = HashMap::new();
 
-        let display_tile_size = camera.tile_size as i32 * camera.scale as i32;
+        let display_tile_size = (camera.tile_size as f32 * camera.scale).round() as i32;
         let total_columns = 100; // Fixed level width
         let total_rows = 10; // Fixed number of rows
 

@@ -1,5 +1,5 @@
-use crate::resources::direction::Direction;
 use crate::game::state::GameState;
+use crate::resources::direction::Direction;
 
 #[derive(Debug, Clone)]
 pub struct Bullet {

@@ -1,5 +1,4 @@
 use crate::resources::direction::Direction;
-use crate::physics::physics::PhysicsEngine;
 
 #[derive(Debug, Clone)]
 pub struct Player {
@@ -19,7 +18,7 @@ impl Default for Player {
             speed: 0,
             direction: Direction::Right,
             on_ground: true,
-            jumping: false
+            jumping: false,
         }
     }
 }
@@ -43,7 +42,7 @@ impl Player {
     //     }
     // }
 
-    pub fn update_position(&mut self, pos: (u16, u16)){
+    pub fn update_position(&mut self, pos: (u16, u16)) {
         self.x = pos.0;
         self.y = pos.1;
     }

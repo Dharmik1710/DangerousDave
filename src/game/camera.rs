@@ -1,8 +1,4 @@
-use sdl2::render::Canvas;
-
-use crate::{render::renderer::{self, Renderer}, resources::app_resources::AppResources};
-use super::level::Level;
-
+use crate::render::renderer::Renderer;
 
 #[derive(Debug, Clone)]
 pub struct Camera {
@@ -12,7 +8,7 @@ pub struct Camera {
     pub scroll_threshold: i8,
     pub tiles_viewport_x: i8,
     pub tile_size: i8,
-    pub scale: i8,
+    pub scale: f32,
 }
 
 impl Default for Camera {
@@ -24,7 +20,7 @@ impl Default for Camera {
             scroll_threshold: 2,
             tiles_viewport_x: 0,
             tile_size: 16,
-            scale: 4,
+            scale: 4.5,
         }
     }
 }
@@ -32,10 +28,13 @@ impl Default for Camera {
 impl Camera {
     pub fn setup(&mut self, renderer: &Renderer) {
         let screen_width = renderer.canvas.window().size().0 as i32;
-        let total_tiles_x = (screen_width / (self.tile_size * self.scale) as i32) as i8;
+        let total_tiles_x =
+            (screen_width as f32 / (self.tile_size as f32 * self.scale)).round() as i8;
 
         self.left_boundary = 0;
-        self.right_boundary = ((total_tiles_x - self.scroll_threshold) as i32) * self.tile_size as i32 * self.scale as i32;
+        self.right_boundary = ((total_tiles_x - self.scroll_threshold) as i32)
+            * self.tile_size as i32
+            * self.scale as i32;
         self.tiles_viewport_x = total_tiles_x;
     }
 

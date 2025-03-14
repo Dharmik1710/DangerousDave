@@ -1,5 +1,5 @@
-use crate::game::state::GameState;
 use crate::game::player::Player;
+use crate::game::state::GameState;
 
 pub struct PhysicsEngine;
 

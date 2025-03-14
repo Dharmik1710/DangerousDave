@@ -1,11 +1,10 @@
+use sdl2::image::LoadTexture;
+use sdl2::Sdl;
 use std::time::{Duration, Instant};
 
 use crate::game::state::GameState;
-use crate::input::input_handler::{self, InputHandler};
+use crate::input::input_handler::InputHandler;
 use crate::render::renderer::Renderer;
-use crate::resources::app_resources::{self, AppResources};
-use sdl2::image::LoadTexture;
-use sdl2::{render, Sdl};
 
 const FRAME_TIME_MS: u64 = 1000 / 60; // 60 FPS → 16ms per frame
 
