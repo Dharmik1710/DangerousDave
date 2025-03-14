@@ -2,9 +2,7 @@ use sdl2::rect::Rect;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
-/// A global, preloaded hashmap mapping tile numbers to Sprites.
-/// We wrap the HashMap in a Mutex to allow safe mutable access.
-static GAME_OBJ_SPRITES: LazyLock<HashMap<u8, Rect>> = LazyLock::new(|| {
+pub static TILE_MAP: LazyLock<HashMap<u8, Rect>> = LazyLock::new(|| {
     [
         (144, Rect::new(0, 0, 112, 47)),
         (145, Rect::new(0, 47, 112, 47)),
@@ -165,13 +163,20 @@ static GAME_OBJ_SPRITES: LazyLock<HashMap<u8, Rect>> = LazyLock::new(|| {
         (128, Rect::new(32, 641, 12, 3)),
     ]
     .into_iter()
-    .collect() // Converts array into a HashMap<u8, Rect>
+    .collect()
 });
 
-/// Retrieves a Rect for a given tile number.
-/// If not found, returns a default empty Rect (0,0,0,0).
-pub fn get_offset(tile: u8) -> Rect {
-    *GAME_OBJ_SPRITES
-        .get(&tile)
-        .unwrap_or(&Rect::new(0, 0, 0, 0))
+/// Holds tile mappings from tile ID to Rect on the texture
+pub struct TileAtlas;
+
+impl TileAtlas {
+    /// ✅ Retrieves a `Rect` for a given tile ID
+    pub fn get_offset(tile_id: u8) -> Rect {
+        *TILE_MAP.get(&tile_id).unwrap_or(&Rect::new(0, 0, 0, 0))
+    }
+
+    /// ✅ Checks if a tile exists in the map
+    pub fn has_tile(tile_id: u8) -> bool {
+        TILE_MAP.contains_key(&tile_id)
+    }
 }

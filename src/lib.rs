@@ -1,12 +1,45 @@
-// src/lib.rs
+// Core game components
+pub mod game {
+    pub mod actions;
+    pub mod bullet;
+    pub mod camera;
+    pub mod enemy;
+    pub mod game;
+    pub mod game_loop;
+    pub mod level;
+    pub mod player;
+    pub mod state;
+}
 
-pub mod game; // Declares a top-level module game from src/game.rs
-              // pub mod gameloop;    // Declares a top-level module gameloop from src/gameloop.rs
+// Input Handling
+pub mod input {
+    pub mod gamepad;
+    pub mod input_handler;
+    pub mod keyboard;
+}
 
-pub mod input; // Declares a top-level module input from src/input.rs
-pub mod physics; // Declares a top-level module physics from src/physics.rs
-pub mod render; // Declares a top-level module graphics from src/graphics.rs
-pub mod resources;
-pub mod utils; // Declares a top-level module utils from src/utils.rs
-// pub mod audio;       // Declares a top-level module audio from src/audio.rs
-// pub mod ui;          // Declares a top-level module ui from src/ui.rs
+// Physics Engine
+pub mod physics {
+    pub mod collisions;
+    pub mod gravity;
+    pub mod physics;
+}
+
+// Rendering System
+pub mod render {
+    pub mod render_utils;
+    pub mod renderer;
+    pub mod tile_atlas;
+}
+
+// Resource Management
+pub mod resources {
+    pub mod direction;
+}
+
+// Utility Functions
+pub mod utils {
+    pub mod file;
+    pub mod logger;
+    pub mod math;
+}

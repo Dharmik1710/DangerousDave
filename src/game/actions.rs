@@ -1,9 +1,10 @@
 #[derive(Debug, Clone)]
 pub struct ActionFlags {
-    /// Flags set when the player pushes a key for a specific action.
+    /// Flags set when the player presses a key for an action.
     pub try_jump: bool,
     pub try_shoot: bool,
-    // Add other action flags as needed (e.g., try_climb, try_use, etc.)
+    pub move_left: bool,
+    pub move_right: bool,
 }
 
 impl Default for ActionFlags {
@@ -11,6 +12,8 @@ impl Default for ActionFlags {
         Self {
             try_jump: false,
             try_shoot: false,
+            move_left: false,
+            move_right: false,
         }
     }
 }

@@ -13,3 +13,5 @@ path = "src/main.rs"
 
 [dependencies]
 sdl2 = { version = "0.35", features = ["image"] }
+log = "0.4"
+env_logger = "0.10"
