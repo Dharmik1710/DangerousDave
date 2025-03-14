@@ -3,9 +3,6 @@ use sdl2::video::{Window, WindowContext};
 use sdl2::Sdl;
 
 use super::tile_atlas::TileAtlas;
-use crate::game::bullet::Bullet;
-use crate::game::enemy::Enemy;
-use crate::game::player::Player;
 use crate::game::state::GameState;
 
 pub struct Renderer {
@@ -54,7 +51,7 @@ impl Renderer {
     pub fn render(&mut self, state: &GameState, texture: &Texture) {
         self.canvas.clear();
 
-        self.render_tiles(state, &texture);
+        self.render_tiles(state, texture);
         // Self::render_player(&state.player, canvas, texture);
         // Self::render_enemies(&state.enemies, canvas, texture);
         // Self::render_bullets(&state.bullets, canvas, texture);

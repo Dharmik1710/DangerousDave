@@ -6,21 +6,13 @@ use std::io::{Read, Result};
 use super::camera::Camera;
 
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct Level {
     pub tiles: Vec<u8>,
     pub batches: HashMap<u8, Vec<Rect>>,
     pub start_position: (u16, u16),
 }
 
-impl Default for Level {
-    fn default() -> Self {
-        Self {
-            tiles: Vec::new(),
-            batches: HashMap::new(),
-            start_position: (0, 0), // Default position if level data is missing
-        }
-    }
-}
 
 impl Level {
     /// Loads level data from file and sets Dave's start position
@@ -62,8 +54,8 @@ impl Level {
                     continue; // Skip empty tiles
                 }
 
-                let dest_x = (col - start_col) as i32 * display_tile_size;
-                let dest_y = row as i32 * display_tile_size;
+                let dest_x = (col - start_col) * display_tile_size;
+                let dest_y = row * display_tile_size;
 
                 let rect = Rect::new(
                     dest_x,
@@ -73,7 +65,7 @@ impl Level {
                 );
                 visible_tiles
                     .entry(tile_index)
-                    .or_insert_with(Vec::new)
+                    .or_default()
                     .push(rect);
             }
         }

@@ -1,4 +1,5 @@
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct Enemy {
     pub x: i32,
     pub y: i32,
@@ -9,19 +10,6 @@ pub struct Enemy {
     pub enemy_type: u8,
 }
 
-impl Default for Enemy {
-    fn default() -> Self {
-        Self {
-            x: 0,
-            y: 0,
-            grid_x: 0,
-            grid_y: 0,
-            path_index: 0,
-            dead_timer: 0,
-            enemy_type: 0,
-        }
-    }
-}
 
 impl Enemy {
     pub fn move_enemy(&mut self) {
