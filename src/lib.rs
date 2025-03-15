@@ -1,3 +1,6 @@
+// Globally accessible config
+pub mod config;
+
 // Core game components
 pub mod game {
     pub mod actions;

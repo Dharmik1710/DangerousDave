@@ -3,13 +3,15 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Result};
 
+use crate::config;
+
 use super::camera::Camera;
 
 #[derive(Debug, Clone, Default)]
 pub struct Level {
     pub tiles: Vec<u8>,
     pub batches: HashMap<u8, Vec<Rect>>,
-    pub dave_start_pos: (u16, u16),
+    pub dave_init_pos: (u16, u16),
 }
 
 impl Level {
@@ -21,7 +23,7 @@ impl Level {
         file.read_exact(&mut buffer)?;
 
         // Example: Retrieve Dave’s start position from a predefined table or metadata
-        let dave_start_pos = match level_num {
+        let dave_init_pos = match level_num {
             1 => (2, 8),
             2 => (1, 8),
             3 => (2, 5),
@@ -36,7 +38,7 @@ impl Level {
         };
 
         self.tiles = buffer[256..1256].to_vec();
-        self.dave_start_pos = dave_start_pos;
+        self.dave_init_pos = dave_init_pos;
 
         Ok(())
     }
@@ -44,7 +46,7 @@ impl Level {
     pub fn update_visible_tiles(&mut self, camera: &Camera) {
         let mut visible_tiles: HashMap<u8, Vec<Rect>> = HashMap::new();
 
-        let display_tile_size = camera.tile_size as u32;
+        let display_tile_size = *config::GAME_TILE_SIZE as u32;
         let total_columns = 100; // Fixed level width
         let total_rows = 10; // Fixed number of rows
 

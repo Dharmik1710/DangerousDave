@@ -21,13 +21,12 @@ pub struct GameState {
 
 impl Default for GameState {
     fn default() -> Self {
-        let scale: f32 = 4.5;
         Self {
             current_level: 1,
             score: 0,
             lives: 3,
-            camera: Camera::new(scale),
-            dave: Dave::new(scale),
+            camera: Camera::default(),
+            dave: Dave::default(),
             enemies: vec![],
             bullets: vec![],
             level: Level::default(),
@@ -48,7 +47,6 @@ impl GameState {
         self.level.update_visible_tiles(&self.camera);
 
         // update player init position
-        self.dave
-            .update_position(self.level.dave_start_pos, self.camera.tile_size);
+        self.dave.init_dave_position(self.level.dave_init_pos);
     }
 }

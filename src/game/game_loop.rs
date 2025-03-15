@@ -20,7 +20,7 @@ impl GameLoop {
 
         // load texture
         let texture_creator = renderer.canvas.texture_creator();
-        let texture = texture_creator.load_texture("assets/dangerous_dave_game_resources.bmp")?;
+        let texture = texture_creator.load_texture("assets/dangerous_dave_game_resources.png")?;
 
         // Initialize input handler
         let mut input_handler = InputHandler::new(sdl_cxt)?;
