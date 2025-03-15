@@ -1,3 +1,5 @@
+use sdl2::libc::SAE_CONNID_ALL;
+
 use crate::resources::direction::Direction;
 
 #[derive(Debug, Clone)]
@@ -29,15 +31,15 @@ impl Dave {
             jumping: false,
         }
     }
-    pub fn move_left(&mut self) {
-        self.x -= self.speed;
-        self.direction = Direction::Left;
-    }
+    // pub fn move_left(&mut self) {
+    //     self.x -= self.speed;
+    //     self.direction = Direction::Left;
+    // }
 
-    pub fn move_right(&mut self) {
-        self.x += self.speed;
-        self.direction = Direction::Right;
-    }
+    // pub fn move_right(&mut self) {
+    //     self.x += self.speed;
+    //     self.direction = Direction::Right;
+    // }
 
     // pub fn jump(&mut self) {
     //     if self.on_ground {
