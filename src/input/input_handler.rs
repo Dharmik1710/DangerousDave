@@ -1,3 +1,4 @@
+use crate::game::dave::Dave;
 use crate::game::state::GameState;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -62,16 +63,16 @@ impl InputHandler {
     /// Processes movement based on currently pressed keys
     fn process_movement(&self, state: &mut GameState) {
         if self.is_key_pressed(Keycode::W) || self.is_key_pressed(Keycode::Up) {
-            state.dave.move_up();
+            Dave::move_up(state);
         }
         if self.is_key_pressed(Keycode::S) || self.is_key_pressed(Keycode::Down) {
-            state.dave.move_down();
+            Dave::move_down(state);
         }
         if self.is_key_pressed(Keycode::A) || self.is_key_pressed(Keycode::Left) {
-            state.dave.move_left();
+            Dave::move_left(state);
         }
         if self.is_key_pressed(Keycode::D) || self.is_key_pressed(Keycode::Right) {
-            state.dave.move_right();
+            Dave::move_right(state);
         }
     }
 

@@ -26,11 +26,11 @@ impl Default for Camera {
 impl Camera {
     pub fn setup(&mut self, renderer: &Renderer) {
         let screen_width = renderer.canvas.window().size().0 as i32;
-        let total_tiles_x = (screen_width / *config::GAME_TILE_SIZE as i32) as u8;
+        let total_tiles_x = (screen_width / config::GAME_TILE_SIZE as i32) as u8;
 
         self.left_boundary = 0;
         self.right_boundary =
-            ((total_tiles_x - self.scroll_threshold) as u32) * *config::GAME_TILE_SIZE as u32;
+            ((total_tiles_x - self.scroll_threshold) as u32) * config::GAME_TILE_SIZE as u32;
         self.tiles_viewport_x = total_tiles_x;
     }
 

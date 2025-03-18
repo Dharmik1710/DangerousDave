@@ -1,11 +1,9 @@
+use super::camera::Camera;
+use crate::config;
 use sdl2::rect::Rect;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Result};
-
-use crate::config;
-
-use super::camera::Camera;
 
 #[derive(Debug, Clone, Default)]
 pub struct Level {
@@ -43,10 +41,54 @@ impl Level {
         Ok(())
     }
 
+    pub fn get_tile(&self, cam_x: u32, tile_x: i32, tile_y: i32) -> u8 {
+        let total_columns = 100; // Fixed level width
+        let total_rows = 10; // Fixed level height
+
+        let col_index = tile_x + cam_x as i32;
+        let row_index = tile_y;
+
+        if col_index < 0
+            || col_index >= total_columns as i32
+            || row_index < 0
+            || row_index >= total_rows as i32
+        {
+            return 0; // Out of bounds, return empty tile
+        }
+
+        let index = (row_index as usize) * total_columns + (col_index as usize);
+        self.tiles.get(index).copied().unwrap_or(0)
+    }
+
+    /// ✅ Updates the tile at (tile_x, tile_y) in the level
+    pub fn update_tile(&mut self, cam_x: u32, tile_x: i32, tile_y: i32, new_tile: u8) {
+        let total_columns = 100; // Fixed level width
+        let total_rows = 10; // Fixed level height
+
+        let col_index = tile_x + cam_x as i32;
+        let row_index = tile_y;
+
+        // ✅ Bounds check to prevent out-of-bounds access
+        if col_index < 0
+            || col_index >= total_columns as i32
+            || row_index < 0
+            || row_index >= total_rows as i32
+        {
+            return; // Out of bounds, do nothing
+        }
+
+        // ✅ Compute the 1D index from (x, y)
+        let index = (row_index as usize) * total_columns + (col_index as usize);
+
+        if let Some(tile) = self.tiles.get_mut(index) {
+            *tile = new_tile; // ✅ Update the tile safely
+        }
+    }
+
     pub fn update_visible_tiles(&mut self, camera: &Camera) {
         let mut visible_tiles: HashMap<u8, Vec<Rect>> = HashMap::new();
 
-        let display_tile_size = *config::GAME_TILE_SIZE as u32;
+        let display_tile_size = config::GAME_TILE_SIZE as u32;
         let total_columns = 100; // Fixed level width
         let total_rows = 10; // Fixed number of rows
 

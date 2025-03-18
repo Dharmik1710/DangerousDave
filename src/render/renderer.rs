@@ -17,8 +17,9 @@ impl Renderer {
     pub fn new(sdl_cxt: &Sdl) -> Result<Self, String> {
         let video_subsystem = sdl_cxt.video()?;
         let window = video_subsystem
-            .window("Dangerous Dave", 800, 600)
+            .window("Dangerous Dave", 800, 600) // Initial resolution
             .position_centered()
+            .resizable() // Allow resizing
             .build()
             .map_err(|e| e.to_string())?;
 
@@ -28,6 +29,15 @@ impl Renderer {
             .build()
             .map_err(|e| e.to_string())?;
 
+        // Set nearest-neighbor filtering to prevent blurry textures
+        sdl2::hint::set("SDL_HINT_RENDER_SCALE_QUALITY", "0");
+
+        // Set logical size to maintain proper scaling
+        canvas
+            .set_logical_size(960, 600)
+            .map_err(|e| e.to_string())?;
+
+        // Set fullscreen mode (optional, can be removed if not needed)
         canvas
             .window_mut()
             .set_fullscreen(sdl2::video::FullscreenType::Desktop)
@@ -69,12 +79,7 @@ impl Renderer {
 
     fn render_dave(&mut self, dave: &Dave, texture: &Texture) {
         let src_rect = TileAtlas::get_dave();
-        let dest_rect = Rect::new(
-            dave.px,
-            dave.py,
-            *config::DAVE_WIDTH as u32,
-            *config::DAVE_HEIGHT as u32,
-        );
+        let dest_rect = Rect::new(dave.px, dave.py, config::DAVE_CHILL_W, config::DAVE_CHILL_H);
         if let Err(e) = self.canvas.copy(texture, src_rect, dest_rect) {
             eprintln!("Failed to render dave: {}", e);
         }
