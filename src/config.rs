@@ -17,7 +17,8 @@ pub static DAVE_JETPACK_W: u32 = 9 * SCALE;
 pub static DAVE_JETPACK_H: u32 = 16 * SCALE;
 
 pub const DAVE_SPEED: i32 = 3; // 4 pixels per frame
-pub static DAVE_JUMP: i32 = 16 * 3 * SCALE as i32;
+pub static DAVE_JUMP: i32 = 16 * 2 * SCALE as i32;
+pub static DAVE_JUMP_COOLDOWN: u8 = 5;
 
 /// 🚀 Static set of solid tiles (never changes)
 pub static SOLID_TILES: LazyLock<HashSet<u8>> = LazyLock::new(|| {

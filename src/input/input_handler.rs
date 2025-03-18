@@ -1,5 +1,7 @@
 use crate::game::dave::Dave;
 use crate::game::state::GameState;
+use crate::physics::physics::PhysicsEngine;
+use crate::resources::direction::Direction;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::{EventPump, Sdl};
@@ -7,7 +9,7 @@ use std::collections::HashSet;
 
 pub struct InputHandler {
     event_pump: EventPump,
-    pressed_keys: HashSet<Keycode>,
+    pub pressed_keys: HashSet<Keycode>,
 }
 
 impl InputHandler {
@@ -36,7 +38,7 @@ impl InputHandler {
         }
 
         // ✅ Step 3: Process movement **after** handling key presses
-        self.process_movement(state);
+        // self.process_movement(state);
 
         quit // ✅ Return `true` only if quit event was detected
     }
@@ -61,23 +63,23 @@ impl InputHandler {
     }
 
     /// Processes movement based on currently pressed keys
-    fn process_movement(&self, state: &mut GameState) {
-        if self.is_key_pressed(Keycode::W) || self.is_key_pressed(Keycode::Up) {
-            Dave::move_up(state);
-        }
-        if self.is_key_pressed(Keycode::S) || self.is_key_pressed(Keycode::Down) {
-            Dave::move_down(state);
-        }
-        if self.is_key_pressed(Keycode::A) || self.is_key_pressed(Keycode::Left) {
-            Dave::move_left(state);
-        }
-        if self.is_key_pressed(Keycode::D) || self.is_key_pressed(Keycode::Right) {
-            Dave::move_right(state);
-        }
-    }
+    // fn process_movement(&self, state: &mut GameState) {
+    //     if self.is_key_pressed(Keycode::W) || self.is_key_pressed(Keycode::Up) {
+    //         PhysicsEngine::apply_physics(state, Direction::Up);
+    //     }
+    //     if self.is_key_pressed(Keycode::S) || self.is_key_pressed(Keycode::Down) {
+    //         PhysicsEngine::apply_physics(state, Direction::Down);
+    //     }
+    //     if self.is_key_pressed(Keycode::A) || self.is_key_pressed(Keycode::Left) {
+    //         PhysicsEngine::apply_physics(state, Direction::Left);
+    //     }
+    //     if self.is_key_pressed(Keycode::D) || self.is_key_pressed(Keycode::Right) {
+    //         PhysicsEngine::apply_physics(state, Direction::Right);
+    //     }
+    // }
 
     /// Returns `true` if the key is currently pressed
-    fn is_key_pressed(&self, key: Keycode) -> bool {
+    pub fn is_key_pressed(&self, key: Keycode) -> bool {
         self.pressed_keys.contains(&key)
     }
 
