@@ -4,6 +4,7 @@ use std::time::{Duration, Instant};
 
 use crate::game::state::GameState;
 use crate::input::input_handler::InputHandler;
+use crate::physics::physics::PhysicsEngine;
 use crate::render::renderer::Renderer;
 
 const FRAME_TIME_MS: u64 = 1000 / 60; // 60 FPS → 16ms per frame
@@ -20,7 +21,7 @@ impl GameLoop {
 
         // load texture
         let texture_creator = renderer.canvas.texture_creator();
-        let texture = texture_creator.load_texture("assets/dangerous_dave_game_resources.bmp")?;
+        let texture = texture_creator.load_texture("assets/dangerous_dave_game_resources.png")?;
 
         // Initialize input handler
         let mut input_handler = InputHandler::new(sdl_cxt)?;
@@ -35,6 +36,9 @@ impl GameLoop {
             if input_handler.handle_input(state) {
                 break 'running;
             }
+
+            // update game
+            Self::game_update(state, &input_handler);
 
             // Game logic update goes here (player movement, collision handling, etc.)
             renderer.render(state, &texture);
@@ -51,5 +55,10 @@ impl GameLoop {
 
         println!("Game loop has ended. Cleaning up...");
         Ok(())
+    }
+
+    pub fn game_update(state: &mut GameState, input_handler: &InputHandler) {
+        // ✅ Apply physics (gravity, movement, jumping)
+        PhysicsEngine::apply_physics(state, &input_handler);
     }
 }

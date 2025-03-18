@@ -4,6 +4,7 @@ pub enum Direction {
     Right,
     Up,
     Down,
+    Chill,
 }
 
 impl Direction {
@@ -14,6 +15,7 @@ impl Direction {
             Direction::Right => Direction::Left,
             Direction::Up => Direction::Down,
             Direction::Down => Direction::Up,
+            Direction::Chill => Direction::Chill,
         }
     }
 

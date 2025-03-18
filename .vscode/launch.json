@@ -5,6 +5,7 @@
             "type": "lldb",
             "request": "launch",
             "name": "Debug Rust Program",
+            "preLaunchTask": "Cargo Clean and Build",
             "program": "/Users/dharmik_patel/Documents/Projects and Assignments/dangerousDave/target/debug/dangerous-dave",
             "args": [],
             "cwd": "/Users/dharmik_patel/Documents/Projects and Assignments/dangerousDave",

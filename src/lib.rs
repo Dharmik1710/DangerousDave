@@ -1,13 +1,16 @@
+// Globally accessible config
+pub mod config;
+
 // Core game components
 pub mod game {
     pub mod actions;
     pub mod bullet;
     pub mod camera;
+    pub mod dave;
     pub mod enemy;
     pub mod game;
     pub mod game_loop;
     pub mod level;
-    pub mod player;
     pub mod state;
 }
 

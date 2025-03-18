@@ -27,13 +27,14 @@ impl Bullet {
             Direction::Right => self.x += self.speed,
             Direction::Up => todo!(),
             Direction::Down => todo!(),
+            Direction::Chill => todo!(),
         }
     }
 
-    pub fn check_collision(&mut self, state: &GameState) {
-        // If bullet moves out of bounds or hits an enemy, deactivate it
-        if self.x < 0 || self.x > state.camera.right_boundary() {
-            self.active = false;
-        }
-    }
+    // pub fn check_collision(&mut self, state: &GameState) {
+    //     // If bullet moves out of bounds or hits an enemy, deactivate it
+    //     if self.x < 0 || self.x > state.camera.right_boundary() {
+    //         self.active = false;
+    //     }
+    // }
 }

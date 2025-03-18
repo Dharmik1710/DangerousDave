@@ -1,10 +1,10 @@
 use crate::render::renderer::Renderer;
 
 use super::bullet::Bullet;
-use super::camera::Camera;
+use super::camera::{self, Camera};
+use super::dave::Dave;
 use super::enemy::Enemy;
-use super::level::Level;
-use super::player::Player;
+use super::level::{self, Level};
 
 #[derive(Debug, Clone)]
 pub struct GameState {
@@ -12,7 +12,7 @@ pub struct GameState {
     pub score: u32,
     pub lives: u8,
     pub camera: Camera,
-    pub player: Player,
+    pub dave: Dave,
     pub enemies: Vec<Enemy>,
     pub bullets: Vec<Bullet>,
     pub level: Level,
@@ -26,7 +26,7 @@ impl Default for GameState {
             score: 0,
             lives: 3,
             camera: Camera::default(),
-            player: Player::default(),
+            dave: Dave::default(),
             enemies: vec![],
             bullets: vec![],
             level: Level::default(),
@@ -47,6 +47,6 @@ impl GameState {
         self.level.update_visible_tiles(&self.camera);
 
         // update player init position
-        self.player.update_position(self.level.start_position);
+        self.dave.init_dave_position(self.level.dave_init_pos);
     }
 }
