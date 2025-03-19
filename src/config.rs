@@ -18,7 +18,8 @@ pub static DAVE_JETPACK_H: u32 = 16 * SCALE;
 
 pub const DAVE_SPEED: i32 = 3; // 4 pixels per frame
 pub static DAVE_JUMP: i32 = 16 * 2 * SCALE as i32;
-pub static DAVE_JUMP_COOLDOWN: u8 = 5;
+pub static DAVE_JUMP_COOLDOWN: u8 = 14; // total
+pub static DAVE_JUMP_UP_COOLDOWN: u8 = 8;
 
 /// 🚀 Static set of solid tiles (never changes)
 pub static SOLID_TILES: LazyLock<HashSet<u8>> = LazyLock::new(|| {
@@ -31,8 +32,14 @@ pub static SOLID_TILES: LazyLock<HashSet<u8>> = LazyLock::new(|| {
 /// 🚀 Static collectibles mapping (tile_id -> score)
 pub static COLLECTIBLES: LazyLock<HashMap<u8, i32>> = LazyLock::new(|| {
     HashMap::from([
-        (47, 1000), // Diamond gives 1000 points
-                    // TODO
+        // Diamond gives 1000 points
+        (47, 1000),
+        (49, 2000),
+        (48, 500),
+        (10, 0),
+        (11, 0),
+        (12, 0),
+        (13, 0),
     ])
 });
 

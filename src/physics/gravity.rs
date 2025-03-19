@@ -1,5 +1,5 @@
 use crate::{
-    config,
+    config::{self, DAVE_JUMP_UP_COOLDOWN},
     game::{
         dave::{self, Dave},
         state::{self, GameState},
@@ -14,11 +14,17 @@ pub struct Gravity;
 impl Gravity {
     pub fn apply_gravity(state: &mut GameState) {
         if state.dave.jump == 0 {
+            if state.dave.jump_cooldown > DAVE_JUMP_UP_COOLDOWN {
+                state.dave.decr_cooldown();
+                return;
+            }
             // irrespective check if you can move down gravity will act upon it
             let displacement = CollisionDetector::check_collision(state, Direction::Down);
             // if collision occurs then set ground to true
             if displacement == 0 {
-                state.dave.set_ground(true);
+                if !state.dave.on_ground {
+                    state.dave.set_ground(true);
+                }
             } else {
                 state.dave.set_ground(false);
                 state.dave.move_down(config::DAVE_SPEED);

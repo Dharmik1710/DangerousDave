@@ -4,6 +4,7 @@ use std::i32::MAX;
 use sdl2::rect::Rect;
 
 use crate::config::{self, DAVE_SPEED, GAME_TILE_SIZE};
+use crate::game::collectibles::CollectibleManager;
 use crate::game::dave::Dave;
 use crate::game::state::GameState;
 use crate::render::tile_atlas::TileAtlas;
@@ -13,7 +14,7 @@ pub struct CollisionDetector;
 
 impl CollisionDetector {
     /// ✅ Checks if any corner of `dave_rect` collides with a solid tile
-    pub fn check_collision(state: &GameState, direction: Direction) -> i32 {
+    pub fn check_collision(state: &mut GameState, direction: Direction) -> i32 {
         let tile_size_f = config::GAME_TILE_SIZE as f32;
         let tile_size = config::GAME_TILE_SIZE as u32;
 
@@ -27,6 +28,7 @@ impl CollisionDetector {
             dave_rect.bottom_right(),
         ];
 
+        let mut displacement = DAVE_SPEED;
         for &corner in &corners {
             // ✅ Convert pixel coordinates to tile index (floor division)
             let tile_x = (corner.x as f32 / tile_size_f).floor() as i32;
@@ -34,6 +36,9 @@ impl CollisionDetector {
 
             // ✅ Retrieve the tile rectangle from TileAtlas
             let tile = state.level.get_tile(state.camera.x, tile_x, tile_y);
+
+            // check for collectibles
+            Self::check_collectibles(state, tile_x, tile_y, tile);
 
             // ✅ Check for intersection with Dave’s rectangle
             if Self::is_solid(tile) {
@@ -44,12 +49,12 @@ impl CollisionDetector {
                     tile_size,
                 );
                 if dave_rect.has_intersection(tile_rect) {
-                    return 0; // 🚨 Collision detected!
+                    displacement = 0; // 🚨 Collision detected!
                 }
             }
         }
 
-        DAVE_SPEED // ✅ No collision detected
+        displacement // ✅ No collision detected
     }
 
     /// ✅ Returns only relevant hitbox corners based on movement direction
@@ -63,6 +68,21 @@ impl CollisionDetector {
             Direction::Left => Rect::new(dave.px - DAVE_SPEED, dave.py, hitbox_w, hitbox_h),
             Direction::Right => Rect::new(dave.px + DAVE_SPEED, dave.py, hitbox_w, hitbox_h),
             Direction::Chill => todo!(),
+        }
+    }
+
+    pub fn check_collectibles(state: &mut GameState, tile_x: i32, tile_y: i32, tile: u8) {
+        // todo!("Remove this is_collectible check as it is not required, handled by next if check");
+        if Self::is_collectible(&tile) {
+            // ✅ Then check if we can get collectible points
+            if let Some(points) = config::COLLECTIBLES.get(&tile) {
+                state.dave.collect(*points);
+
+                // ✅ Remove collectible from level (set tile to 0)
+                state
+                    .level
+                    .update_tile(state.camera.x, tile_x, tile_y, tile);
+            }
         }
     }
 
@@ -81,5 +101,9 @@ impl CollisionDetector {
 
     pub fn is_solid(tile: u8) -> bool {
         config::SOLID_TILES.contains(&tile)
+    }
+
+    pub fn is_collectible(tile: &u8) -> bool {
+        config::COLLECTIBLES.contains_key(tile)
     }
 }

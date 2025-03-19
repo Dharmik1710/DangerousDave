@@ -2,6 +2,7 @@ use sdl2::image::LoadTexture;
 use sdl2::Sdl;
 use std::time::{Duration, Instant};
 
+use crate::game::game_manager::GameManager;
 use crate::game::state::GameState;
 use crate::input::input_handler::InputHandler;
 use crate::physics::physics::PhysicsEngine;
@@ -38,7 +39,7 @@ impl GameLoop {
             }
 
             // update game
-            Self::game_update(state, &input_handler);
+            GameManager::update(state, &input_handler);
 
             // Game logic update goes here (player movement, collision handling, etc.)
             renderer.render(state, &texture);
@@ -55,10 +56,5 @@ impl GameLoop {
 
         println!("Game loop has ended. Cleaning up...");
         Ok(())
-    }
-
-    pub fn game_update(state: &mut GameState, input_handler: &InputHandler) {
-        // ✅ Apply physics (gravity, movement, jumping)
-        PhysicsEngine::apply_physics(state, &input_handler);
     }
 }

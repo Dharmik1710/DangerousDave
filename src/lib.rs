@@ -6,10 +6,13 @@ pub mod game {
     pub mod actions;
     pub mod bullet;
     pub mod camera;
+    pub mod collectibles;
     pub mod dave;
     pub mod enemy;
     pub mod game;
     pub mod game_loop;
+    pub mod game_manager;
+    // pub mod game_rules;
     pub mod level;
     pub mod state;
 }

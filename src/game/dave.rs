@@ -24,6 +24,7 @@ pub struct Dave {
     pub on_ground: bool,
     pub jetpack: bool,
     pub dave_state: DaveState,
+    pub score: i32,
 }
 
 impl Default for Dave {
@@ -37,6 +38,7 @@ impl Default for Dave {
             jetpack: false,
             on_ground: true,
             dave_state: DaveState::Chilling,
+            score: 0,
         }
     }
 }
@@ -53,13 +55,17 @@ impl Dave {
     pub fn jump(&mut self) {
         if self.on_ground && self.jump == 0 {
             if self.jump_cooldown != 0 {
-                self.jump_cooldown -= 1;
+                self.decr_cooldown();
                 return;
             }
             self.jump = DAVE_JUMP; // Set jump height
             self.on_ground = false; // Dave is no longer on the ground
             self.jump_cooldown = DAVE_JUMP_COOLDOWN;
         }
+    }
+
+    pub fn collect(&mut self, points: i32) {
+        self.score += points;
     }
 
     pub fn move_up(&mut self, displacement: i32) {
@@ -77,6 +83,10 @@ impl Dave {
 
     pub fn set_ground(&mut self, is_on_ground: bool) {
         self.on_ground = is_on_ground;
+    }
+
+    pub fn decr_cooldown(&mut self) {
+        self.jump_cooldown -= 1;
     }
 
     pub fn init_dave_position(&mut self, pos: (u16, u16)) {
