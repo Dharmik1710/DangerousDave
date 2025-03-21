@@ -1,3 +1,5 @@
+use std::vec;
+
 use crate::render::renderer::Renderer;
 
 use super::bullet::Bullet;
@@ -10,7 +12,7 @@ use super::level::{self, Level};
 pub struct GameState {
     pub current_level: u8,
     pub score: u32,
-    pub lives: u8,
+    pub lives: u32,
     pub camera: Camera,
     pub dave: Dave,
     pub enemies: Vec<Enemy>,
@@ -22,7 +24,7 @@ pub struct GameState {
 impl Default for GameState {
     fn default() -> Self {
         Self {
-            current_level: 1,
+            current_level: 2,
             score: 0,
             lives: 3,
             camera: Camera::default(),
@@ -47,6 +49,9 @@ impl GameState {
         self.level.update_visible_tiles(&self.camera);
 
         // update player init position
-        self.dave.init_dave_position(self.level.dave_init_pos);
+        self.dave.init_dave_position(self.current_level);
+
+        // load enemies
+        self.enemies = Enemy::spawn_enemies(self.current_level);
     }
 }

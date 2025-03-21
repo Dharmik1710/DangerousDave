@@ -1,5 +1,5 @@
 use crate::{
-    config::{self, DAVE_JUMP_UP_COOLDOWN},
+    config::{self, DAVE_JUMP_UP_COOLDOWN, DAVE_SPEED},
     game::{
         dave::{self, Dave},
         state::{self, GameState},
@@ -27,7 +27,7 @@ impl Gravity {
                 }
             } else {
                 state.dave.set_ground(false);
-                state.dave.move_down(config::DAVE_SPEED);
+                state.dave.move_down(DAVE_SPEED);
             }
         } else if !state.dave.on_ground {
             // move up if jump is not 0 and ground is set to false
@@ -36,7 +36,7 @@ impl Gravity {
             if displacement == 0 {
                 state.dave.set_jump(0);
             } else {
-                state.dave.move_up(config::DAVE_SPEED);
+                state.dave.move_up(DAVE_SPEED);
             }
         }
     }

@@ -4,7 +4,7 @@ use sdl2::video::{Window, WindowContext};
 use sdl2::Sdl;
 
 use super::tile_atlas::TileAtlas;
-use crate::config;
+use crate::config::{DAVE_CHILL_H, DAVE_CHILL_W};
 use crate::game::dave::Dave;
 use crate::game::level::Level;
 use crate::game::state::GameState;
@@ -79,7 +79,7 @@ impl Renderer {
 
     fn render_dave(&mut self, dave: &Dave, texture: &Texture) {
         let src_rect = TileAtlas::get_dave();
-        let dest_rect = Rect::new(dave.px, dave.py, config::DAVE_CHILL_W, config::DAVE_CHILL_H);
+        let dest_rect = Rect::new(dave.px as i32, dave.py as i32, DAVE_CHILL_W, DAVE_CHILL_H);
         if let Err(e) = self.canvas.copy(texture, src_rect, dest_rect) {
             eprintln!("Failed to render dave: {}", e);
         }

@@ -12,6 +12,7 @@ pub mod game {
     pub mod game;
     pub mod game_loop;
     pub mod game_manager;
+    pub mod init;
     // pub mod game_rules;
     pub mod level;
     pub mod state;

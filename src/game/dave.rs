@@ -1,4 +1,4 @@
-use super::state::GameState;
+use super::{init::Initialize, level, state::GameState};
 use crate::{
     config::{self, DAVE_JUMP, DAVE_JUMP_COOLDOWN, GAME_TILE_SIZE},
     physics::collisions::CollisionDetector,
@@ -16,15 +16,15 @@ pub enum DaveState {
 
 #[derive(Debug, Clone)]
 pub struct Dave {
-    pub px: i32,
-    pub py: i32,
-    pub jump: i32,
-    pub jump_cooldown: u8,
+    pub px: u32,
+    pub py: u32,
+    pub jump: u32,
+    pub jump_cooldown: u32,
     pub direction: Direction,
     pub on_ground: bool,
     pub jetpack: bool,
     pub dave_state: DaveState,
-    pub score: i32,
+    pub score: u32,
 }
 
 impl Default for Dave {
@@ -44,11 +44,11 @@ impl Default for Dave {
 }
 
 impl Dave {
-    pub fn move_left(&mut self, displacement: i32) {
+    pub fn move_left(&mut self, displacement: u32) {
         self.px -= displacement;
     }
 
-    pub fn move_right(&mut self, displacement: i32) {
+    pub fn move_right(&mut self, displacement: u32) {
         self.px += displacement;
     }
 
@@ -64,20 +64,20 @@ impl Dave {
         }
     }
 
-    pub fn collect(&mut self, points: i32) {
+    pub fn collect(&mut self, points: u32) {
         self.score += points;
     }
 
-    pub fn move_up(&mut self, displacement: i32) {
+    pub fn move_up(&mut self, displacement: u32) {
         self.py -= displacement;
         self.jump = std::cmp::max(self.jump - displacement, 0);
     }
 
-    pub fn move_down(&mut self, displacement: i32) {
+    pub fn move_down(&mut self, displacement: u32) {
         self.py += displacement;
     }
 
-    pub fn set_jump(&mut self, jump_force: i32) {
+    pub fn set_jump(&mut self, jump_force: u32) {
         self.jump = jump_force;
     }
 
@@ -89,8 +89,14 @@ impl Dave {
         self.jump_cooldown -= 1;
     }
 
-    pub fn init_dave_position(&mut self, pos: (u16, u16)) {
-        self.px = (pos.0 * config::GAME_TILE_SIZE) as i32;
-        self.py = (pos.1 * config::GAME_TILE_SIZE) as i32;
+    pub fn init_dave_position(&mut self, level_num: u8) {
+        let dave_init_position = Initialize::get_dave_init_pos(level_num);
+        self.px = dave_init_position.0 * GAME_TILE_SIZE;
+        self.py = dave_init_position.1 * GAME_TILE_SIZE;
+    }
+
+    pub fn update_position(&mut self, x_shift: i32) {
+        // x_shift is bounded and handled by default
+        self.px = ((self.px as i32) - (x_shift * GAME_TILE_SIZE as i32)) as u32;
     }
 }
