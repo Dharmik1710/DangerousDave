@@ -2,6 +2,8 @@ use sdl2::rect::Rect;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
+use crate::resources::direction::{self, Direction};
+
 pub static TILE_MAP: LazyLock<HashMap<u8, Rect>> = LazyLock::new(|| {
     [
         (144, Rect::new(0, 0, 112, 47)),
@@ -196,5 +198,10 @@ impl TileAtlas {
     pub fn get_dimension(tile_id: u8) -> (u32, u32) {
         let rect = *TILE_MAP.get(&tile_id).unwrap();
         (rect.width(), rect.height())
+    }
+
+    pub fn get_bullet(direction: Direction) -> Rect {
+        let tile_num = 126;
+        *TILE_MAP.get(&tile_num).unwrap()
     }
 }

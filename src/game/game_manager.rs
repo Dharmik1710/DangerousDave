@@ -15,7 +15,7 @@ impl GameManager {
         state
             .enemies
             .iter_mut()
-            .for_each(|enemy| enemy.update_enemy(&state.level.path));
+            .for_each(|enemy| enemy.update_enemy(&state.level.path, &state.dave, &state.camera));
 
         // Apply game rules (e.g., unlock exit door, check for game over)
         // GameRules::apply_rules(state);

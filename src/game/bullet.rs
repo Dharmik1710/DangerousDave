@@ -1,38 +1,45 @@
+use crate::config::{GAME_TILE_SIZE, SCREEN_WIDTH};
 use crate::game::state::GameState;
-use crate::resources::direction::Direction;
+use crate::render::tile_atlas::TileAtlas;
+use crate::resources::direction::{self, Direction};
 
-#[derive(Debug, Clone)]
+use super::camera::{self, Camera};
+
+#[derive(Debug, Clone, Default)]
 pub struct Bullet {
-    pub x: u32,
-    pub y: u32,
+    pub px: i32,
+    pub py: i32,
     pub direction: Direction,
-    pub active: bool,
+    pub is_active: bool,
 }
 
 impl Bullet {
-    pub fn new(x: u32, y: u32, direction: Direction) -> Self {
-        Self {
-            x,
-            y,
-            direction,
-            active: true,
+    pub fn update(&mut self) {
+        match self.direction {
+            Direction::Left => self.px -= 4,
+            Direction::Right => self.px += 4,
+            _ => {}
+        }
+
+        if self.px < 0 || self.px > SCREEN_WIDTH as i32 {
+            self.is_active = false
         }
     }
 
-    pub fn update(&mut self) {
-        // match self.direction {
-        //     Direction::Left => self.x -= self.speed,
-        //     Direction::Right => self.x += self.speed,
-        //     Direction::Up => todo!(),
-        //     Direction::Down => todo!(),
-        //     Direction::Chill => todo!(),
-        // }
+    // fire bullet
+    // (px, py) - position of the enemy/dave in pixel
+    pub fn fire(&mut self, px: i32, py: i32, shoot_direction: Direction, tile_num: u8) {
+        let tile_dimension = TileAtlas::get_dimension(tile_num);
+        self.direction = shoot_direction;
+        let offset_x = match shoot_direction {
+            Direction::Right => tile_dimension.0,
+            _ => 0,
+        };
+        self.px = px + offset_x as i32;
+        self.py = py;
+        self.is_active = true;
     }
 
-    // pub fn check_collision(&mut self, state: &GameState) {
-    //     // If bullet moves out of bounds or hits an enemy, deactivate it
-    //     if self.x < 0 || self.x > state.camera.right_boundary() {
-    //         self.active = false;
-    //     }
-    // }
+    // Update bullet as per camera
+    pub fn update_as_per_cam() {}
 }

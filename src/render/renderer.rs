@@ -4,7 +4,10 @@ use sdl2::video::{Window, WindowContext};
 use sdl2::Sdl;
 
 use super::tile_atlas::TileAtlas;
-use crate::config::{DAVE_CHILL_H, DAVE_CHILL_W, GAME_TILE_SIZE, SCALE};
+use crate::config::{
+    DAVE_CHILL_H, DAVE_CHILL_W, GAME_TILE_SIZE, SCALE, SCREEN_HEIGHT, SCREEN_WIDTH,
+};
+use crate::game::bullet;
 use crate::game::camera::Camera;
 use crate::game::dave::Dave;
 use crate::game::enemy::{self, Enemy};
@@ -36,7 +39,7 @@ impl Renderer {
 
         // Set logical size to maintain proper scaling
         canvas
-            .set_logical_size(960, 600)
+            .set_logical_size(SCREEN_WIDTH, SCREEN_HEIGHT)
             .map_err(|e| e.to_string())?;
 
         // Set fullscreen mode (optional, can be removed if not needed)
@@ -91,22 +94,34 @@ impl Renderer {
     fn render_enemies(&mut self, enemies: &[Enemy], texture: &Texture, camera: &Camera) {
         for enemy in enemies.iter() {
             if enemy.is_enemy_on_screen(camera) {
-                let src_rect = TileAtlas::get_enemy(enemy.enemy_tile);
-                let enemy_px = enemy.x - camera.x * GAME_TILE_SIZE;
-                let enemy_py = enemy.y;
-                let dest_rect = Rect::new(
+                let src_rect_enemy = TileAtlas::get_enemy(enemy.enemy_tile);
+                let enemy_px = enemy.px - camera.x * GAME_TILE_SIZE;
+                let enemy_py = enemy.py;
+                let dest_rect_enemy = Rect::new(
                     enemy_px as i32,
                     enemy_py as i32,
-                    src_rect.width() * SCALE,
-                    src_rect.height() * SCALE,
+                    src_rect_enemy.width() * SCALE,
+                    src_rect_enemy.height() * SCALE,
                 );
-                if let Err(e) = self.canvas.copy(texture, src_rect, dest_rect) {
+                if let Err(e) = self.canvas.copy(texture, src_rect_enemy, dest_rect_enemy) {
                     eprintln!("Failed to render enemy: {}", e);
+                }
+            }
+            // render bullet
+            if enemy.can_shoot && enemy.bullet.is_active {
+                let src_rect_bullet = TileAtlas::get_bullet(enemy.bullet.direction);
+                let dest_rect_bullet = Rect::new(
+                    enemy.bullet.px,
+                    enemy.bullet.py,
+                    src_rect_bullet.width() * SCALE,
+                    src_rect_bullet.height() * SCALE,
+                );
+                if let Err(e) = self.canvas.copy(texture, src_rect_bullet, dest_rect_bullet) {
+                    eprintln!("Failed to render enemy nullet: {}", e);
                 }
             }
         }
     }
-
     // fn render_enemies(enemies: &[Enemy], canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, texture: &Texture) {
     //     for enemy in enemies {
     //         let dest_rect = Rect::new(enemy.x, enemy.y, 32, 32);

@@ -1,6 +1,8 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::LazyLock;
 
+pub static SCREEN_WIDTH: u32 = 960;
+pub static SCREEN_HEIGHT: u32 = 600;
 pub static SCALE: u32 = 3;
 
 // DAVE config
@@ -22,6 +24,8 @@ pub static DAVE_JUMP_COOLDOWN: u32 = 12; // total
 pub static DAVE_JUMP_UP_COOLDOWN: u32 = 7;
 
 pub static ENEMY_COOLDOWN: u8 = 0;
+
+pub static BULLET_SPEED: u8 = 4;
 
 /// 🚀 Static set of solid tiles (never changes)
 pub static SOLID_TILES: LazyLock<HashSet<u8>> = LazyLock::new(|| {

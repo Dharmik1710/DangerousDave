@@ -16,7 +16,6 @@ pub struct GameState {
     pub camera: Camera,
     pub dave: Dave,
     pub enemies: Vec<Enemy>,
-    pub bullets: Vec<Bullet>,
     pub level: Level,
     pub quit: bool,
 }
@@ -30,7 +29,6 @@ impl Default for GameState {
             camera: Camera::default(),
             dave: Dave::default(),
             enemies: vec![],
-            bullets: vec![],
             level: Level::default(),
             quit: false,
         }
