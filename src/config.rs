@@ -18,8 +18,10 @@ pub static DAVE_CHILL_H: u32 = 16 * SCALE;
 
 pub const DAVE_SPEED: u32 = 3; // 4 pixels per frame
 pub static DAVE_JUMP: u32 = 16 * 2 * SCALE;
-pub static DAVE_JUMP_COOLDOWN: u32 = 14; // total
-pub static DAVE_JUMP_UP_COOLDOWN: u32 = 8;
+pub static DAVE_JUMP_COOLDOWN: u32 = 12; // total
+pub static DAVE_JUMP_UP_COOLDOWN: u32 = 7;
+
+pub static ENEMY_COOLDOWN: u8 = 0;
 
 /// 🚀 Static set of solid tiles (never changes)
 pub static SOLID_TILES: LazyLock<HashSet<u8>> = LazyLock::new(|| {
@@ -27,6 +29,9 @@ pub static SOLID_TILES: LazyLock<HashSet<u8>> = LazyLock::new(|| {
         17, // Walls
         15, 16, // Tunnel
         29, 30, 31, // Pink platform
+        19, // Blue tile
+        18, // type of wall
+        5,  // blue wall
     ])
 });
 
@@ -41,6 +46,9 @@ pub static COLLECTIBLES: LazyLock<HashMap<u8, u32>> = LazyLock::new(|| {
         (11, 0),
         (12, 0),
         (13, 0),
+        (20, 0),
+        (4, 0),    // Jetpack with fuel
+        (51, 200), // ring
     ])
 });
 

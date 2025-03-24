@@ -4,8 +4,10 @@ use sdl2::video::{Window, WindowContext};
 use sdl2::Sdl;
 
 use super::tile_atlas::TileAtlas;
-use crate::config::{DAVE_CHILL_H, DAVE_CHILL_W};
+use crate::config::{DAVE_CHILL_H, DAVE_CHILL_W, GAME_TILE_SIZE, SCALE};
+use crate::game::camera::Camera;
 use crate::game::dave::Dave;
+use crate::game::enemy::{self, Enemy};
 use crate::game::level::Level;
 use crate::game::state::GameState;
 
@@ -59,6 +61,7 @@ impl Renderer {
 
         self.render_tiles(&state.level, texture);
         self.render_dave(&state.dave, texture);
+        self.render_enemies(&state.enemies, texture, &state.camera);
 
         // Self::render_enemies(&state.enemies, canvas, texture);
         // Self::render_bullets(&state.bullets, canvas, texture);
@@ -82,6 +85,25 @@ impl Renderer {
         let dest_rect = Rect::new(dave.px as i32, dave.py as i32, DAVE_CHILL_W, DAVE_CHILL_H);
         if let Err(e) = self.canvas.copy(texture, src_rect, dest_rect) {
             eprintln!("Failed to render dave: {}", e);
+        }
+    }
+
+    fn render_enemies(&mut self, enemies: &[Enemy], texture: &Texture, camera: &Camera) {
+        for enemy in enemies.iter() {
+            if enemy.is_enemy_on_screen(camera) {
+                let src_rect = TileAtlas::get_enemy(enemy.enemy_tile);
+                let enemy_px = enemy.x - camera.x * GAME_TILE_SIZE;
+                let enemy_py = enemy.y;
+                let dest_rect = Rect::new(
+                    enemy_px as i32,
+                    enemy_py as i32,
+                    src_rect.width() * SCALE,
+                    src_rect.height() * SCALE,
+                );
+                if let Err(e) = self.canvas.copy(texture, src_rect, dest_rect) {
+                    eprintln!("Failed to render enemy: {}", e);
+                }
+            }
         }
     }
 

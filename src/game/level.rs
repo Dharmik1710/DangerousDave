@@ -7,7 +7,7 @@ use std::io::{Read, Result};
 
 #[derive(Debug, Clone, Default)]
 pub struct Level {
-    pub path: Vec<(u8, u8)>,
+    pub path: Vec<(i8, i8)>,
     pub tiles: Vec<u8>,
     pub batches: HashMap<u8, Vec<Rect>>,
 }
@@ -113,7 +113,7 @@ impl Level {
 
     /// ✅ Parses the movement path for enemies from the buffer
     pub fn parse_enemy_path(&mut self, buffer: Vec<u8>) {
-        let mut movement_path = Vec::new();
+        let mut movement_path: Vec<(i8, i8)> = Vec::new();
         let path = buffer[0..256].to_vec();
         let mut iter = path.chunks_exact(2); // Iterate in steps of 2
 
@@ -122,7 +122,7 @@ impl Level {
                 break; // Stop parsing at loop point
             }
 
-            movement_path.push((dx, dy)); // Convert to signed integers
+            movement_path.push((dx as i8, dy as i8)); // Convert to signed integers
         }
 
         self.path = movement_path;

@@ -173,7 +173,7 @@ pub struct TileAtlas;
 impl TileAtlas {
     /// ✅ Retrieves a `Rect` for a given tile ID
     pub fn get_offset(tile_id: u8) -> Rect {
-        *TILE_MAP.get(&tile_id).unwrap_or(&Rect::new(0, 0, 0, 0))
+        *TILE_MAP.get(&tile_id).unwrap()
     }
 
     /// ✅ Checks if a tile exists in the map
@@ -184,6 +184,17 @@ impl TileAtlas {
     /// ✅ get dave tile
     pub fn get_dave() -> Rect {
         let dave_tile = 54;
-        *TILE_MAP.get(&dave_tile).unwrap_or(&Rect::new(0, 0, 0, 0))
+        *TILE_MAP.get(&dave_tile).unwrap()
+    }
+
+    /// get enemy
+    pub fn get_enemy(tile_num: u8) -> Rect {
+        *TILE_MAP.get(&tile_num).unwrap()
+    }
+
+    /// return width and height
+    pub fn get_dimension(tile_id: u8) -> (u32, u32) {
+        let rect = *TILE_MAP.get(&tile_id).unwrap();
+        (rect.width(), rect.height())
     }
 }
