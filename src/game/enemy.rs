@@ -1,7 +1,7 @@
 use sdl2::rect::Rect;
 
 use crate::{
-    config::{ENEMY_COOLDOWN, GAME_TILE_SIZE, SCALE},
+    config::{ENEMY_COOLDOWN, GAME_TILE_SIZE, SCALE, SHOOTING_ENEMIES},
     render::tile_atlas::TileAtlas,
     resources::direction::{self, Direction},
 };
@@ -28,6 +28,7 @@ pub struct Enemy {
 
 impl Enemy {
     pub fn new(x: u32, y: u32, enemy_tile: u8) -> Self {
+        let can_shoot = SHOOTING_ENEMIES.contains(&enemy_tile);
         Self {
             px: x * GAME_TILE_SIZE,
             py: y * GAME_TILE_SIZE,
@@ -37,7 +38,7 @@ impl Enemy {
             cooldown: ENEMY_COOLDOWN,
             is_alive: true,
             bullet: Bullet::default(),
-            can_shoot: true,
+            can_shoot,
         }
     }
 

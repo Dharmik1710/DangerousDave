@@ -39,6 +39,13 @@ pub static SOLID_TILES: LazyLock<HashSet<u8>> = LazyLock::new(|| {
     ])
 });
 
+/// 🚀 Static set of solid tiles (never changes)
+pub static SHOOTING_ENEMIES: LazyLock<HashSet<u8>> = LazyLock::new(|| {
+    HashSet::from([
+        89, 90, 91, 91, // brown monsters
+    ])
+});
+
 /// 🚀 Static collectibles mapping (tile_id -> score)
 pub static COLLECTIBLES: LazyLock<HashMap<u8, u32>> = LazyLock::new(|| {
     HashMap::from([
