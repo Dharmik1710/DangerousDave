@@ -1,88 +1,76 @@
 use std::cmp;
 
-use crate::{
-    config::{self, DAVE_CHILL_W, GAME_TILE_SIZE},
-    render::renderer::Renderer,
-};
+use crate::config::{DAVE_CHILL_W, GAME_TILE_SIZE, SCROLL_THRESHOLD, TOTAL_VIEWPORT_TILES_X};
 
 use super::state::GameState;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Camera {
     pub x: u32,
     left_boundary: u32,
     right_boundary: u32,
-    pub scroll_threshold: u32,
-    pub tiles_viewport_x: u32,
 }
 
 impl Default for Camera {
     fn default() -> Self {
+        let right_boundary = (*TOTAL_VIEWPORT_TILES_X - SCROLL_THRESHOLD) * GAME_TILE_SIZE;
         Self {
             x: 0,
             left_boundary: 0,
-            right_boundary: 0,
-            scroll_threshold: 2,
-            tiles_viewport_x: 0,
+            right_boundary,
         }
     }
 }
 
 impl Camera {
-    pub fn setup(&mut self, renderer: &Renderer) {
-        let screen_width = renderer.canvas.logical_size().0 as i32;
-        let total_tiles_x = (screen_width as f32 / GAME_TILE_SIZE as f32).floor() as u32;
-
-        self.left_boundary = 0;
-        self.right_boundary = (total_tiles_x - self.scroll_threshold) * GAME_TILE_SIZE;
-        self.tiles_viewport_x = total_tiles_x;
+    pub fn reset(&mut self) {
+        *self = Self::default();
     }
 
     pub fn update(state: &mut GameState) {
         let is_left_boundary_crossed = state.dave.px <= state.camera.left_boundary;
         let is_right_boundary_crossed = state.dave.px + DAVE_CHILL_W >= state.camera.right_boundary;
-        let mut x_shift: i32 = 0;
-        if is_left_boundary_crossed {
+
+        if is_left_boundary_crossed || is_right_boundary_crossed {
             // x_shift
             // set w.r.t tile_size
             // can be -ve ot +ve
-            x_shift = cmp::max(
-                -(state.camera.x as i32),
-                -((state.camera.tiles_viewport_x - 6) as i32),
-            );
+            let mut x_shift: i32 = 0;
+            if is_left_boundary_crossed {
+                x_shift = cmp::max(
+                    -(state.camera.x as i32),
+                    -((*TOTAL_VIEWPORT_TILES_X - 6) as i32),
+                );
 
-            // // ✅ Round to nearest lower multiple of GAME_TILE_SIZE
-            // x_shift -= x_shift % GAME_TILE_SIZE;
+                // update camera
+                state.camera.move_left(x_shift);
+            }
+            if is_right_boundary_crossed {
+                // x shift
+                // set w.r.t tile_size
+                // can be -ve ot +ve
+                x_shift = cmp::min(
+                    (100 - state.camera.x - *TOTAL_VIEWPORT_TILES_X) as i32,
+                    (*TOTAL_VIEWPORT_TILES_X - 7) as i32,
+                );
 
-            // update camera
-            state.camera.move_left(x_shift);
-
-            // update dave
-            state.dave.update_position(x_shift);
-
-            // update batches
-            state.level.update_visible_tiles(&state.camera);
-        }
-        if is_right_boundary_crossed {
-            // x shift
-            // set w.r.t tile_size
-            // can be -ve ot +ve
-            x_shift = cmp::min(
-                (100 - state.camera.x - state.camera.tiles_viewport_x) as i32,
-                (state.camera.tiles_viewport_x - 7) as i32,
-            );
-
-            // ✅ Round to nearest lower multiple of GAME_TILE_SIZE
-            // x_shift -= x_shift % GAME_TILE_SIZE;
-
-            // update camera
-            state.camera.move_right(x_shift);
+                // update camera
+                state.camera.move_right(x_shift);
+            }
 
             // update dave
             state.dave.update_position(x_shift);
 
             // update batches
             state.level.update_visible_tiles(&state.camera);
+
+            // update bullets of enemies position
+            state
+                .enemies
+                .iter_mut()
+                .for_each(|enemy| enemy.bullet.upadate_as_per_cam(x_shift));
+
+            // TODO: update dave's bullet
         }
     }
 
@@ -92,17 +80,17 @@ impl Camera {
         if self.x == 0 {
             self.left_boundary = 0;
         } else {
-            self.left_boundary = 2 * GAME_TILE_SIZE;
+            self.left_boundary = SCROLL_THRESHOLD * GAME_TILE_SIZE;
         }
     }
 
     pub fn move_right(&mut self, x_shift: i32) {
         // Converted directly as x is bounded such that x will never be -ve
         self.x += x_shift as u32;
-        if self.x >= 100 - self.tiles_viewport_x {
-            self.right_boundary = self.tiles_viewport_x * GAME_TILE_SIZE;
+        if self.x >= 100 - *TOTAL_VIEWPORT_TILES_X {
+            self.right_boundary = *TOTAL_VIEWPORT_TILES_X * GAME_TILE_SIZE;
         } else {
-            self.right_boundary = (self.tiles_viewport_x - 2) * GAME_TILE_SIZE;
+            self.right_boundary = (*TOTAL_VIEWPORT_TILES_X - SCROLL_THRESHOLD) * GAME_TILE_SIZE;
         }
     }
 

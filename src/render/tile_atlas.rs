@@ -2,7 +2,10 @@ use sdl2::rect::Rect;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
-use crate::resources::direction::{self, Direction};
+use crate::{
+    config::{DAVE_DEFAULT_TILE, SCALE},
+    resources::direction::{self, Direction},
+};
 
 pub static TILE_MAP: LazyLock<HashMap<u8, Rect>> = LazyLock::new(|| {
     [
@@ -174,7 +177,7 @@ pub struct TileAtlas;
 
 impl TileAtlas {
     /// ✅ Retrieves a `Rect` for a given tile ID
-    pub fn get_offset(tile_id: u8) -> Rect {
+    pub fn get_rect(tile_id: u8) -> Rect {
         *TILE_MAP.get(&tile_id).unwrap()
     }
 
@@ -185,7 +188,7 @@ impl TileAtlas {
 
     /// ✅ get dave tile
     pub fn get_dave() -> Rect {
-        let dave_tile = 54;
+        let dave_tile = DAVE_DEFAULT_TILE;
         *TILE_MAP.get(&dave_tile).unwrap()
     }
 
@@ -197,7 +200,7 @@ impl TileAtlas {
     /// return width and height
     pub fn get_dimension(tile_id: u8) -> (u32, u32) {
         let rect = *TILE_MAP.get(&tile_id).unwrap();
-        (rect.width(), rect.height())
+        (rect.width() * SCALE, rect.height() * SCALE)
     }
 
     pub fn get_bullet(direction: Direction) -> Rect {

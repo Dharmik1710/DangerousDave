@@ -5,7 +5,7 @@ use sdl2::Sdl;
 
 use super::tile_atlas::TileAtlas;
 use crate::config::{
-    DAVE_CHILL_H, DAVE_CHILL_W, GAME_TILE_SIZE, SCALE, SCREEN_HEIGHT, SCREEN_WIDTH,
+    DAVE_CHILL_H, DAVE_CHILL_W, DEAD_TILE, GAME_TILE_SIZE, SCALE, SCREEN_HEIGHT, SCREEN_WIDTH,
 };
 use crate::game::bullet;
 use crate::game::camera::Camera;
@@ -64,7 +64,7 @@ impl Renderer {
 
         self.render_tiles(&state.level, texture);
         self.render_dave(&state.dave, texture);
-        self.render_enemies(&state.enemies, texture, &state.camera);
+        self.render_enemies(&state.enemies, texture, state.camera);
 
         // Self::render_enemies(&state.enemies, canvas, texture);
         // Self::render_bullets(&state.bullets, canvas, texture);
@@ -74,7 +74,7 @@ impl Renderer {
 
     fn render_tiles(&mut self, level: &Level, texture: &Texture) {
         for (tile_id, rects) in &level.batches {
-            let src_rect = TileAtlas::get_offset(*tile_id);
+            let src_rect = TileAtlas::get_rect(*tile_id);
             for rect in rects {
                 if let Err(e) = self.canvas.copy(texture, src_rect, *rect) {
                     eprintln!("Failed to render tile: {}", e);
@@ -84,25 +84,28 @@ impl Renderer {
     }
 
     fn render_dave(&mut self, dave: &Dave, texture: &Texture) {
-        let src_rect = TileAtlas::get_dave();
-        let dest_rect = Rect::new(dave.px as i32, dave.py as i32, DAVE_CHILL_W, DAVE_CHILL_H);
-        if let Err(e) = self.canvas.copy(texture, src_rect, dest_rect) {
-            eprintln!("Failed to render dave: {}", e);
+        if dave.is_alive {
+            let src_rect = TileAtlas::get_dave();
+            let dest_rect = Rect::new(dave.px as i32, dave.py as i32, DAVE_CHILL_W, DAVE_CHILL_H);
+            if let Err(e) = self.canvas.copy(texture, src_rect, dest_rect) {
+                eprintln!("Failed to render dave: {}", e);
+            }
+        } else if dave.dead_timer > 0 {
+            let src_rect = TileAtlas::get_rect(DEAD_TILE);
+            let (dead_w, dead_h) = TileAtlas::get_dimension(DEAD_TILE);
+            let dest_rect = Rect::new(dave.px as i32, dave.py as i32, dead_w, dead_h);
+            if let Err(e) = self.canvas.copy(texture, src_rect, dest_rect) {
+                eprintln!("Failed to render dave: {}", e);
+            }
         }
     }
 
-    fn render_enemies(&mut self, enemies: &[Enemy], texture: &Texture, camera: &Camera) {
+    fn render_enemies(&mut self, enemies: &[Enemy], texture: &Texture, camera: Camera) {
         for enemy in enemies.iter() {
+            // render enemy
             if enemy.is_enemy_on_screen(camera) {
-                let src_rect_enemy = TileAtlas::get_enemy(enemy.enemy_tile);
-                let enemy_px = enemy.px - camera.x * GAME_TILE_SIZE;
-                let enemy_py = enemy.py;
-                let dest_rect_enemy = Rect::new(
-                    enemy_px as i32,
-                    enemy_py as i32,
-                    src_rect_enemy.width() * SCALE,
-                    src_rect_enemy.height() * SCALE,
-                );
+                let src_rect_enemy = TileAtlas::get_enemy(enemy.tile);
+                let dest_rect_enemy = enemy.get_rect(camera);
                 if let Err(e) = self.canvas.copy(texture, src_rect_enemy, dest_rect_enemy) {
                     eprintln!("Failed to render enemy: {}", e);
                 }
@@ -110,12 +113,7 @@ impl Renderer {
             // render bullet
             if enemy.can_shoot && enemy.bullet.is_active {
                 let src_rect_bullet = TileAtlas::get_bullet(enemy.bullet.direction);
-                let dest_rect_bullet = Rect::new(
-                    enemy.bullet.px,
-                    enemy.bullet.py,
-                    src_rect_bullet.width() * SCALE,
-                    src_rect_bullet.height() * SCALE,
-                );
+                let dest_rect_bullet = enemy.bullet.get_rect();
                 if let Err(e) = self.canvas.copy(texture, src_rect_bullet, dest_rect_bullet) {
                     eprintln!("Failed to render enemy nullet: {}", e);
                 }

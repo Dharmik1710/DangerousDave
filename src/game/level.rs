@@ -1,5 +1,5 @@
 use super::camera::Camera;
-use crate::config::GAME_TILE_SIZE;
+use crate::config::{GAME_TILE_SIZE, TOTAL_VIEWPORT_TILES_X};
 use sdl2::rect::Rect;
 use std::collections::HashMap;
 use std::fs::File;
@@ -86,7 +86,7 @@ impl Level {
         let total_rows = 10; // Fixed number of rows
 
         let start_col = camera.x; // Leftmost visible tile
-        let end_col = (camera.x + camera.tiles_viewport_x).min(total_columns);
+        let end_col = (camera.x + *TOTAL_VIEWPORT_TILES_X).min(total_columns);
 
         for row in 0..total_rows {
             for col in start_col..end_col {

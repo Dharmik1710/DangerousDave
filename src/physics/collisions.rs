@@ -4,10 +4,13 @@ use std::i32::MAX;
 use sdl2::rect::Rect;
 
 use crate::config::{
-    self, COLLECTIBLES, DAVE_CHILL_H, DAVE_CHILL_W, DAVE_SPEED, GAME_TILE_SIZE, SOLID_TILES,
+    self, COLLECTIBLES, DANGER_TILES, DAVE_CHILL_H, DAVE_CHILL_W, DAVE_SPEED, DAVE_SPEED_X,
+    DOOR_TILE, GAME_TILE_SIZE, SCALE, SOLID_TILES,
 };
+use crate::game::camera::Camera;
 use crate::game::collectibles::CollectibleManager;
-use crate::game::dave::Dave;
+use crate::game::dave::{self, Dave};
+use crate::game::enemy::{self, Enemy};
 use crate::game::state::GameState;
 use crate::render::tile_atlas::TileAtlas;
 use crate::resources::direction::{self, Direction};
@@ -27,7 +30,7 @@ impl CollisionDetector {
             dave_rect.bottom_right(),
         ];
 
-        let mut displacement = DAVE_SPEED;
+        let mut displacement = DAVE_SPEED_X;
         for &corner in &corners {
             // ✅ Convert pixel coordinates to tile index (floor division)
             let tile_x = (corner.x as f32 / GAME_TILE_SIZE as f32).floor() as u32;
@@ -38,6 +41,20 @@ impl CollisionDetector {
 
             // check for collectibles
             Self::check_collectibles(state, tile_x, tile_y, tile);
+
+            // Check if Dave steps on a deadly tile
+            Self::check_danger_tile(state, tile);
+
+            // Check dave's collision with enemy and its bullet
+            Self::check_collision_with_enemy(
+                &mut state.dave,
+                state.camera,
+                &mut state.enemies,
+                dave_rect,
+            );
+
+            // Check if Dave has completed the level
+            Self::check_door_collision(state, tile);
 
             // ✅ Check for intersection with Dave’s rectangle
             if Self::is_solid(tile) {
@@ -91,6 +108,34 @@ impl CollisionDetector {
         }
     }
 
+    /// ✅ Check collision with Dave
+    pub fn check_collision_with_enemy(
+        dave: &mut Dave,
+        camera: Camera,
+        enemies: &mut [Enemy],
+        dave_rect: Rect,
+    ) -> bool {
+        for enemy in enemies.iter_mut() {
+            // check for enemy tile collision
+            if enemy.is_enemy_on_screen(camera) && enemy.is_alive {
+                let enemy_rect = enemy.get_rect(camera);
+                if enemy_rect.has_intersection(dave_rect) {
+                    enemy.dead();
+                    dave.dead();
+                }
+            }
+            // check for enemy bullet collision
+            if enemy.bullet.is_active {
+                let bullet_rect = enemy.bullet.get_rect();
+                if bullet_rect.has_intersection(dave_rect) {
+                    dave.dead();
+                    enemy.bullet.is_active = false;
+                }
+            }
+        }
+        false
+    }
+
     pub fn check_collectibles(state: &mut GameState, tile_x: u32, tile_y: u32, tile: u8) {
         // todo!("Remove this is_collectible check as it is not required, handled by next if check");
         if Self::is_collectible(&tile) {
@@ -104,6 +149,16 @@ impl CollisionDetector {
                     .update_tile(state.camera.x, tile_x, tile_y, tile);
             }
         }
+    }
+
+    pub fn check_danger_tile(state: &mut GameState, tile: u8) {
+        if DANGER_TILES.contains(&tile) {
+            state.dave.dead();
+        }
+    }
+
+    pub fn check_door_collision(state: &GameState, tile: u8) {
+        if tile == DOOR_TILE {}
     }
 
     // pub fn get_displacement(tile_x: u32, tile_y: u32, dave: &Dave, direction: Direction) -> u32 {

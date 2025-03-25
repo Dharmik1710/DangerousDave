@@ -1,6 +1,6 @@
 use super::{init::Initialize, level, state::GameState};
 use crate::{
-    config::{self, DAVE_JUMP, DAVE_JUMP_COOLDOWN, GAME_TILE_SIZE},
+    config::{self, DAVE_DEFAULT_TILE, DAVE_JUMP, DAVE_JUMP_COOLDOWN, DEAD_TIMER, GAME_TILE_SIZE},
     physics::collisions::CollisionDetector,
     resources::direction::{self, Direction},
 };
@@ -22,9 +22,10 @@ pub struct Dave {
     pub jump_cooldown: u32,
     pub direction: Direction,
     pub on_ground: bool,
-    pub jetpack: bool,
-    pub dave_state: DaveState,
     pub score: u32,
+    pub is_alive: bool,
+    pub dead_timer: i8,
+    pub tile: u8,
 }
 
 impl Default for Dave {
@@ -35,21 +36,30 @@ impl Default for Dave {
             jump: 0,
             jump_cooldown: 0,
             direction: Direction::Chill,
-            jetpack: false,
             on_ground: true,
-            dave_state: DaveState::Chilling,
             score: 0,
+            is_alive: true,
+            dead_timer: DEAD_TIMER,
+            tile: DAVE_DEFAULT_TILE,
         }
     }
 }
 
 impl Dave {
+    pub fn reset(&mut self) {
+        *self = Self::default();
+    }
+
     pub fn move_left(&mut self, displacement: u32) {
-        self.px -= displacement;
+        if self.is_alive {
+            self.px -= displacement;
+        }
     }
 
     pub fn move_right(&mut self, displacement: u32) {
-        self.px += displacement;
+        if self.is_alive {
+            self.px += displacement;
+        }
     }
 
     pub fn jump(&mut self) {
@@ -64,21 +74,31 @@ impl Dave {
         }
     }
 
+    pub fn dead(&mut self) {
+        self.is_alive = false;
+    }
+
     pub fn collect(&mut self, points: u32) {
         self.score += points;
     }
 
     pub fn move_up(&mut self, displacement: u32) {
-        self.py -= displacement;
-        self.jump = std::cmp::max(self.jump - displacement, 0);
+        if self.is_alive {
+            self.py -= displacement;
+            self.jump = std::cmp::max(self.jump - displacement, 0);
+        }
     }
 
     pub fn move_down(&mut self, displacement: u32) {
-        self.py += displacement;
+        if self.is_alive {
+            self.py += displacement;
+        }
     }
 
     pub fn set_jump(&mut self, jump_force: u32) {
-        self.jump = jump_force;
+        if self.is_alive {
+            self.jump = jump_force;
+        }
     }
 
     pub fn set_ground(&mut self, is_on_ground: bool) {
@@ -87,6 +107,12 @@ impl Dave {
 
     pub fn decr_cooldown(&mut self) {
         self.jump_cooldown -= 1;
+    }
+
+    pub fn decr_dead_timer(&mut self) {
+        if self.dead_timer > 0 && !self.is_alive {
+            self.dead_timer -= 1;
+        }
     }
 
     pub fn init_dave_position(&mut self, level_num: u8) {

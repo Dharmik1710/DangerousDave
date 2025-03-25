@@ -28,7 +28,7 @@ impl GameLoop {
         let mut input_handler = InputHandler::new(sdl_cxt)?;
 
         // Initialize level
-        state.init_level(&renderer);
+        state.init_level();
 
         // Main game loop
         'running: loop {

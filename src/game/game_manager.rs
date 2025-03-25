@@ -3,6 +3,8 @@ use crate::game::state::GameState;
 use crate::input::input_handler::{self, InputHandler};
 use crate::physics::physics::PhysicsEngine;
 
+use super::game_rules::GameRules;
+
 pub struct GameManager;
 
 impl GameManager {
@@ -11,16 +13,29 @@ impl GameManager {
         // ✅ Apply physics (gravity, movement, jumping)
         PhysicsEngine::apply_physics(state, input_handler);
 
+        // Update camera
+        Camera::update(state);
+
         // Handle enemy logic
         state
             .enemies
             .iter_mut()
-            .for_each(|enemy| enemy.update_enemy(&state.level.path, &state.dave, &state.camera));
+            .for_each(|enemy| enemy.update_enemy(&state.level.path, &state.dave, state.camera));
+
+        // if dead amd dead timer greater than 0
+        state.dave.decr_dead_timer();
 
         // Apply game rules (e.g., unlock exit door, check for game over)
-        // GameRules::apply_rules(state);
+        // state.if_finsihed_level();
 
-        // Update camera
-        Camera::update(state);
+        // check if dave died
+        if !state.dave.is_alive && state.dave.dead_timer == 0 {
+            if state.lives != 0 {
+                state.respawn_dave();
+            } else {
+                // restart game
+                state.init_level();
+            }
+        }
     }
 }

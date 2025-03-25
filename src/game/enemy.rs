@@ -1,7 +1,7 @@
 use sdl2::rect::Rect;
 
 use crate::{
-    config::{ENEMY_COOLDOWN, GAME_TILE_SIZE, SCALE, SHOOTING_ENEMIES},
+    config::{ENEMY_COOLDOWN, GAME_TILE_SIZE, SCALE, SHOOTING_ENEMIES, TOTAL_VIEWPORT_TILES_X},
     render::tile_atlas::TileAtlas,
     resources::direction::{self, Direction},
 };
@@ -19,26 +19,26 @@ pub struct Enemy {
     pub py: u32,
     pub path_index: u32,
     pub dead_timer: u32,
-    pub enemy_tile: u8,
     pub cooldown: u8,
     pub is_alive: bool,
     pub bullet: Bullet,
     pub can_shoot: bool,
+    pub tile: u8,
 }
 
 impl Enemy {
-    pub fn new(x: u32, y: u32, enemy_tile: u8) -> Self {
-        let can_shoot = SHOOTING_ENEMIES.contains(&enemy_tile);
+    pub fn new(x: u32, y: u32, tile: u8) -> Self {
+        let can_shoot = SHOOTING_ENEMIES.contains(&tile);
         Self {
             px: x * GAME_TILE_SIZE,
             py: y * GAME_TILE_SIZE,
             path_index: 0,
             dead_timer: 0,
-            enemy_tile,
             cooldown: ENEMY_COOLDOWN,
             is_alive: true,
             bullet: Bullet::default(),
             can_shoot,
+            tile,
         }
     }
 
@@ -88,13 +88,14 @@ impl Enemy {
     }
 
     /// ✅ Moves the enemy (Patrolling, AI, etc.)
-    pub fn update_enemy(&mut self, path: &[(i8, i8)], dave: &Dave, camera: &Camera) {
+    pub fn update_enemy(&mut self, path: &[(i8, i8)], dave: &Dave, camera: Camera) {
         if self.is_alive {
             // check the cooldown, decrement it if not 0
             if self.cooldown > 0 {
                 self.cooldown -= 1;
                 return;
             }
+
             // ✅ Extract delta x and y
             let (dx, dy) = path[self.path_index as usize];
 
@@ -107,11 +108,13 @@ impl Enemy {
             self.cooldown = ENEMY_COOLDOWN;
 
             self.shoot(dave, camera, dx);
+        } else if self.dead_timer > 0 {
+            self.dead_timer -= 1;
         }
     }
 
     /// shoot
-    pub fn shoot(&mut self, dave: &Dave, camera: &Camera, dx: i8) {
+    pub fn shoot(&mut self, dave: &Dave, camera: Camera, dx: i8) {
         // shoot only when all of these are true
         //  - bullet is not active
         //  - the enemy is on screen
@@ -122,11 +125,11 @@ impl Enemy {
             let px = self.px as i32 - (camera.x * GAME_TILE_SIZE) as i32;
             let py = self.py as i32;
             let direction = self.get_shoot_direction(dave, camera);
-            self.bullet.fire(px, py, direction, self.enemy_tile);
+            self.bullet.fire(px, py, direction, self.tile);
         }
     }
 
-    pub fn get_shoot_direction(&self, dave: &Dave, camera: &Camera) -> Direction {
+    pub fn get_shoot_direction(&self, dave: &Dave, camera: Camera) -> Direction {
         let dave_pos_abs = camera.x * GAME_TILE_SIZE + dave.px;
         if dave_pos_abs < self.px {
             Direction::Left
@@ -136,21 +139,20 @@ impl Enemy {
     }
 
     /// Check if enemy is visible on screen
-    pub fn is_enemy_on_screen(&self, camera: &Camera) -> bool {
+    pub fn is_enemy_on_screen(&self, camera: Camera) -> bool {
         let diff = self.px as i32 - (camera.x * GAME_TILE_SIZE) as i32;
-        let is_visible = diff >= 0 && diff <= (camera.tiles_viewport_x * GAME_TILE_SIZE) as i32;
+        let is_visible = diff >= 0 && diff <= (*TOTAL_VIEWPORT_TILES_X * GAME_TILE_SIZE) as i32;
         self.is_alive && is_visible
     }
 
-    /// ✅ Check collision with Dave
-    pub fn check_collision(&self, dave: &Rect, camera: &Camera) -> bool {
-        if self.is_enemy_on_screen(camera) && self.is_alive {
-            let x = self.px - (camera.x * GAME_TILE_SIZE);
-            let y = self.py;
-            let (h, w) = TileAtlas::get_dimension(self.enemy_tile);
-            let enemy_rect = Rect::new(x as i32, y as i32, h * SCALE, w * SCALE);
-            return enemy_rect.has_intersection(*dave);
-        }
-        false
+    pub fn dead(&mut self) {
+        self.is_alive = false;
+    }
+
+    pub fn get_rect(&self, camera: Camera) -> Rect {
+        let px = self.px as i32 - (camera.x * GAME_TILE_SIZE) as i32;
+        let py = self.py as i32;
+        let (w, h) = TileAtlas::get_dimension(self.tile);
+        Rect::new(px, py, w, h)
     }
 }
