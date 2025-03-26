@@ -16,26 +16,13 @@ impl GameManager {
         // Update camera
         Camera::update(state);
 
-        // Handle enemy logic
+        // update enemy and bullet logic
         state
             .enemies
             .iter_mut()
             .for_each(|enemy| enemy.update_enemy(&state.level.path, &state.dave, state.camera));
 
-        // if dead amd dead timer greater than 0
-        state.dave.decr_dead_timer();
-
-        // Apply game rules (e.g., unlock exit door, check for game over)
-        // state.if_finsihed_level();
-
-        // check if dave died
-        if !state.dave.is_alive && state.dave.dead_timer == 0 {
-            if state.lives != 0 {
-                state.respawn_dave();
-            } else {
-                // restart game
-                state.init_level();
-            }
-        }
+        // apply game rules
+        GameRules::apply_rules(state);
     }
 }

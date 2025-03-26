@@ -102,20 +102,22 @@ impl Renderer {
 
     fn render_enemies(&mut self, enemies: &[Enemy], texture: &Texture, camera: Camera) {
         for enemy in enemies.iter() {
-            // render enemy
-            if enemy.is_enemy_on_screen(camera) {
-                let src_rect_enemy = TileAtlas::get_enemy(enemy.tile);
-                let dest_rect_enemy = enemy.get_rect(camera);
-                if let Err(e) = self.canvas.copy(texture, src_rect_enemy, dest_rect_enemy) {
-                    eprintln!("Failed to render enemy: {}", e);
+            if enemy.is_alive {
+                // render enemy
+                if enemy.is_enemy_on_screen(camera) {
+                    let src_rect_enemy = TileAtlas::get_enemy(enemy.tile);
+                    let dest_rect_enemy = enemy.get_rect(camera);
+                    if let Err(e) = self.canvas.copy(texture, src_rect_enemy, dest_rect_enemy) {
+                        eprintln!("Failed to render enemy: {}", e);
+                    }
                 }
-            }
-            // render bullet
-            if enemy.can_shoot && enemy.bullet.is_active {
-                let src_rect_bullet = TileAtlas::get_bullet(enemy.bullet.direction);
-                let dest_rect_bullet = enemy.bullet.get_rect();
-                if let Err(e) = self.canvas.copy(texture, src_rect_bullet, dest_rect_bullet) {
-                    eprintln!("Failed to render enemy nullet: {}", e);
+                // render bullet
+                if enemy.can_shoot && enemy.bullet.is_active {
+                    let src_rect_bullet = TileAtlas::get_bullet(enemy.bullet.direction);
+                    let dest_rect_bullet = enemy.bullet.get_rect();
+                    if let Err(e) = self.canvas.copy(texture, src_rect_bullet, dest_rect_bullet) {
+                        eprintln!("Failed to render enemy nullet: {}", e);
+                    }
                 }
             }
         }

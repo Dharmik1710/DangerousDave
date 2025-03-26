@@ -19,7 +19,8 @@ impl Gravity {
                 return;
             }
             // irrespective check if you can move down gravity will act upon it
-            let displacement = CollisionDetector::check_collision(state, Direction::Down);
+            let displacement =
+                CollisionDetector::check_solid_tile_collision(state, Direction::Down);
             // if collision occurs then set ground to true
             if displacement == 0 {
                 if !state.dave.on_ground {
@@ -31,7 +32,7 @@ impl Gravity {
             }
         } else if !state.dave.on_ground {
             // move up if jump is not 0 and ground is set to false
-            let displacement = CollisionDetector::check_collision(state, Direction::Up);
+            let displacement = CollisionDetector::check_solid_tile_collision(state, Direction::Up);
             // if collision occurs, then set jump to 0
             if displacement == 0 {
                 state.dave.set_jump(0);

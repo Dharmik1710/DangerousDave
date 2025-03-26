@@ -29,6 +29,10 @@ impl Default for Bullet {
 }
 
 impl Bullet {
+    pub fn reset(&mut self) {
+        *self = Self::default();
+    }
+
     pub fn update(&mut self) {
         match self.direction {
             Direction::Left => self.px -= 4,
@@ -42,7 +46,7 @@ impl Bullet {
     }
 
     pub fn upadate_as_per_cam(&mut self, x_shift: i32) {
-        self.px += x_shift;
+        self.px -= x_shift * GAME_TILE_SIZE as i32;
     }
 
     // fire bullet
@@ -64,6 +68,6 @@ impl Bullet {
 
     pub fn get_rect(&self) -> Rect {
         let (w, h) = TileAtlas::get_dimension(self.tile);
-        Rect::new(self.px, self.py, w * SCALE, h * SCALE)
+        Rect::new(self.px, self.py, w, h)
     }
 }

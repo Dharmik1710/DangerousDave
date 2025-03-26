@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::sync::LazyLock;
 
 use crate::{
-    config::{DAVE_DEFAULT_TILE, SCALE},
+    config::{CUP_TILES, DAVE_DEFAULT_TILE, SCALE},
     resources::direction::{self, Direction},
 };
 
@@ -177,13 +177,13 @@ pub struct TileAtlas;
 
 impl TileAtlas {
     /// ✅ Retrieves a `Rect` for a given tile ID
-    pub fn get_rect(tile_id: u8) -> Rect {
-        *TILE_MAP.get(&tile_id).unwrap()
+    pub fn get_rect(tile_num: u8) -> Rect {
+        *TILE_MAP.get(&tile_num).unwrap()
     }
 
     /// ✅ Checks if a tile exists in the map
-    pub fn has_tile(tile_id: u8) -> bool {
-        TILE_MAP.contains_key(&tile_id)
+    pub fn has_tile(tile_num: u8) -> bool {
+        TILE_MAP.contains_key(&tile_num)
     }
 
     /// ✅ get dave tile
@@ -198,8 +198,8 @@ impl TileAtlas {
     }
 
     /// return width and height
-    pub fn get_dimension(tile_id: u8) -> (u32, u32) {
-        let rect = *TILE_MAP.get(&tile_id).unwrap();
+    pub fn get_dimension(tile_num: u8) -> (u32, u32) {
+        let rect = *TILE_MAP.get(&tile_num).unwrap();
         (rect.width() * SCALE, rect.height() * SCALE)
     }
 

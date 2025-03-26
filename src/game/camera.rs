@@ -82,16 +82,18 @@ impl Camera {
         } else {
             self.left_boundary = SCROLL_THRESHOLD * GAME_TILE_SIZE;
         }
+        self.right_boundary = (*TOTAL_VIEWPORT_TILES_X - SCROLL_THRESHOLD) * GAME_TILE_SIZE;
     }
 
     pub fn move_right(&mut self, x_shift: i32) {
         // Converted directly as x is bounded such that x will never be -ve
-        self.x += x_shift as u32;
+        self.x = (self.x as i32 + x_shift) as u32;
         if self.x >= 100 - *TOTAL_VIEWPORT_TILES_X {
             self.right_boundary = *TOTAL_VIEWPORT_TILES_X * GAME_TILE_SIZE;
         } else {
             self.right_boundary = (*TOTAL_VIEWPORT_TILES_X - SCROLL_THRESHOLD) * GAME_TILE_SIZE;
         }
+        self.left_boundary = SCROLL_THRESHOLD * GAME_TILE_SIZE;
     }
 
     // pub fn left_boundary(&self) -> i32 {

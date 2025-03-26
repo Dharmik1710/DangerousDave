@@ -1,7 +1,7 @@
 use std::cmp;
 use std::i32::MAX;
 
-use sdl2::rect::Rect;
+use sdl2::rect::{Point, Rect};
 
 use crate::config::{
     self, COLLECTIBLES, DANGER_TILES, DAVE_CHILL_H, DAVE_CHILL_W, DAVE_SPEED, DAVE_SPEED_X,
@@ -19,18 +19,13 @@ pub struct CollisionDetector;
 
 impl CollisionDetector {
     /// ✅ Checks if any corner of `dave_rect` collides with a solid tile
-    pub fn check_collision(state: &mut GameState, direction: Direction) -> u32 {
-        let dave_rect = Self::get_apparent_rect(&state.dave, direction);
+    pub fn check_solid_tile_collision(state: &GameState, direction: Direction) -> u32 {
+        // Dave rect
+        let dave_rect = state.dave.get_rect(direction);
 
         // ✅ Extract all four corners
-        let corners = [
-            dave_rect.top_left(),
-            dave_rect.top_right(),
-            dave_rect.bottom_left(),
-            dave_rect.bottom_right(),
-        ];
+        let corners = Self::get_corners(&dave_rect, direction);
 
-        let mut displacement = DAVE_SPEED_X;
         for &corner in &corners {
             // ✅ Convert pixel coordinates to tile index (floor division)
             let tile_x = (corner.x as f32 / GAME_TILE_SIZE as f32).floor() as u32;
@@ -38,23 +33,6 @@ impl CollisionDetector {
 
             // ✅ Retrieve the tile rectangle from TileAtlas
             let tile = state.level.get_tile(state.camera.x, tile_x, tile_y);
-
-            // check for collectibles
-            Self::check_collectibles(state, tile_x, tile_y, tile);
-
-            // Check if Dave steps on a deadly tile
-            Self::check_danger_tile(state, tile);
-
-            // Check dave's collision with enemy and its bullet
-            Self::check_collision_with_enemy(
-                &mut state.dave,
-                state.camera,
-                &mut state.enemies,
-                dave_rect,
-            );
-
-            // Check if Dave has completed the level
-            Self::check_door_collision(state, tile);
 
             // ✅ Check for intersection with Dave’s rectangle
             if Self::is_solid(tile) {
@@ -65,100 +43,56 @@ impl CollisionDetector {
                     GAME_TILE_SIZE,
                 );
                 if dave_rect.has_intersection(tile_rect) {
-                    displacement = 0; // 🚨 Collision detected!
+                    return 0; // 🚨 Collision detected!
                 }
             }
         }
-
-        displacement // ✅ No collision detected
+        // ✅ No collision detected
+        if direction.is_horizontal() {
+            DAVE_SPEED_X
+        } else if direction.is_vertical() {
+            DAVE_SPEED
+        } else {
+            0
+        }
     }
 
-    /// ✅ Returns only relevant hitbox corners based on movement direction
-    fn get_apparent_rect(dave: &Dave, direction: Direction) -> Rect {
-        let hitbox_w = DAVE_CHILL_W;
-        let hitbox_h = DAVE_CHILL_H;
-
-        // be extra careful with the u32 to i32 conversions
+    pub fn get_corners(rect: &Rect, direction: Direction) -> Vec<(Point)> {
         match direction {
-            Direction::Up => Rect::new(
-                dave.px as i32,
-                (dave.py - DAVE_SPEED) as i32,
-                hitbox_w,
-                hitbox_h,
-            ),
-            Direction::Down => Rect::new(
-                dave.px as i32,
-                (dave.py + DAVE_SPEED) as i32,
-                hitbox_w,
-                hitbox_h,
-            ),
-            Direction::Left => Rect::new(
-                (dave.px - DAVE_SPEED) as i32,
-                dave.py as i32,
-                hitbox_w,
-                hitbox_h,
-            ),
-            Direction::Right => Rect::new(
-                (dave.px + DAVE_SPEED) as i32,
-                dave.py as i32,
-                hitbox_w,
-                hitbox_h,
-            ),
-            Direction::Chill => todo!(),
+            Direction::Up => vec![rect.top_left(), rect.top_right()],
+            Direction::Down => vec![rect.bottom_left(), rect.bottom_right()],
+            Direction::Left => vec![rect.top_left(), rect.bottom_left()],
+            Direction::Right => vec![rect.top_right(), rect.bottom_right()],
+            Direction::Chill => vec![
+                rect.top_left(),
+                rect.top_right(),
+                rect.bottom_left(),
+                rect.bottom_right(),
+            ], // return all four corners
         }
     }
 
     /// ✅ Check collision with Dave
-    pub fn check_collision_with_enemy(
-        dave: &mut Dave,
-        camera: Camera,
-        enemies: &mut [Enemy],
-        dave_rect: Rect,
-    ) -> bool {
-        for enemy in enemies.iter_mut() {
-            // check for enemy tile collision
-            if enemy.is_enemy_on_screen(camera) && enemy.is_alive {
-                let enemy_rect = enemy.get_rect(camera);
-                if enemy_rect.has_intersection(dave_rect) {
-                    enemy.dead();
-                    dave.dead();
-                }
-            }
-            // check for enemy bullet collision
-            if enemy.bullet.is_active {
-                let bullet_rect = enemy.bullet.get_rect();
-                if bullet_rect.has_intersection(dave_rect) {
-                    dave.dead();
-                    enemy.bullet.is_active = false;
-                }
+    pub fn check_collision_with_enemy(camera: Camera, enemy: &Enemy, dave_rect: Rect) -> bool {
+        // check for enemy tile collision
+        if enemy.is_enemy_on_screen(camera) && enemy.is_alive {
+            let enemy_rect = enemy.get_rect(camera);
+            if enemy_rect.has_intersection(dave_rect) {
+                return true;
             }
         }
         false
     }
 
-    pub fn check_collectibles(state: &mut GameState, tile_x: u32, tile_y: u32, tile: u8) {
-        // todo!("Remove this is_collectible check as it is not required, handled by next if check");
-        if Self::is_collectible(&tile) {
-            // ✅ Then check if we can get collectible points
-            if let Some(points) = COLLECTIBLES.get(&tile) {
-                state.dave.collect(*points);
-
-                // ✅ Remove collectible from level (set tile to 0)
-                state
-                    .level
-                    .update_tile(state.camera.x, tile_x, tile_y, tile);
+    pub fn check_collision_with_bullet(enemy: &Enemy, rect: Rect) -> bool {
+        // check for enemy bullet collision
+        if enemy.bullet.is_active {
+            let bullet_rect = enemy.bullet.get_rect();
+            if bullet_rect.has_intersection(rect) {
+                return true;
             }
         }
-    }
-
-    pub fn check_danger_tile(state: &mut GameState, tile: u8) {
-        if DANGER_TILES.contains(&tile) {
-            state.dave.dead();
-        }
-    }
-
-    pub fn check_door_collision(state: &GameState, tile: u8) {
-        if tile == DOOR_TILE {}
+        false
     }
 
     // pub fn get_displacement(tile_x: u32, tile_y: u32, dave: &Dave, direction: Direction) -> u32 {

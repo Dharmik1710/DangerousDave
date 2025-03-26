@@ -25,11 +25,11 @@ pub static DAVE_CHILL_H: u32 = 16 * SCALE;
 // pub static DAVE_JETPACK_W: i32 = 9 * SCALE;
 // pub static DAVE_JETPACK_H: i32 = 16 * SCALE;
 
-pub const DAVE_SPEED: u32 = 3; // 4 pixels per frame
-pub const DAVE_SPEED_X: u32 = 4;
+pub const DAVE_SPEED: u32 = 2; // 4 pixels per frame
+pub const DAVE_SPEED_X: u32 = 3;
 pub static DAVE_JUMP: u32 = 16 * 2 * SCALE;
-pub static DAVE_JUMP_COOLDOWN: u32 = 14; // total
-pub static DAVE_JUMP_UP_COOLDOWN: u32 = 6;
+pub static DAVE_JUMP_COOLDOWN: u32 = 10; // total
+pub static DAVE_JUMP_UP_COOLDOWN: u32 = 3;
 pub static DAVE_DEFAULT_TILE: u8 = 54;
 
 pub static DEAD_TIMER: i8 = 30;
@@ -66,10 +66,10 @@ pub static COLLECTIBLES: LazyLock<HashMap<u8, u32>> = LazyLock::new(|| {
         (47, 1000),
         (49, 2000),
         (48, 500),
-        (10, 0),
-        (11, 0),
-        (12, 0),
-        (13, 0),
+        (10, 0), // cup
+        (11, 0), // cup
+        (12, 0), // cup
+        (13, 0), // cup
         (20, 0),
         (4, 0),    // Jetpack with fuel
         (51, 200), // ring
@@ -83,3 +83,5 @@ pub static DANGER_TILES: LazyLock<HashSet<u8>> = LazyLock::new(|| {
         36, 37, 38, 39, 40, // water
     ])
 });
+
+pub static CUP_TILES: LazyLock<HashSet<u8>> = LazyLock::new(|| HashSet::from([10, 11, 12, 13]));

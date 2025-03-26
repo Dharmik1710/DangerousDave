@@ -1,6 +1,9 @@
 use super::{init::Initialize, level, state::GameState};
 use crate::{
-    config::{self, DAVE_DEFAULT_TILE, DAVE_JUMP, DAVE_JUMP_COOLDOWN, DEAD_TIMER, GAME_TILE_SIZE},
+    config::{
+        self, DAVE_CHILL_H, DAVE_CHILL_W, DAVE_DEFAULT_TILE, DAVE_JUMP, DAVE_JUMP_COOLDOWN,
+        DAVE_SPEED, DEAD_TIMER, GAME_TILE_SIZE,
+    },
     physics::collisions::CollisionDetector,
     resources::direction::{self, Direction},
 };
@@ -22,7 +25,6 @@ pub struct Dave {
     pub jump_cooldown: u32,
     pub direction: Direction,
     pub on_ground: bool,
-    pub score: u32,
     pub is_alive: bool,
     pub dead_timer: i8,
     pub tile: u8,
@@ -34,10 +36,9 @@ impl Default for Dave {
             px: 0,
             py: 0,
             jump: 0,
-            jump_cooldown: 0,
+            jump_cooldown: DAVE_JUMP_COOLDOWN,
             direction: Direction::Chill,
             on_ground: true,
-            score: 0,
             is_alive: true,
             dead_timer: DEAD_TIMER,
             tile: DAVE_DEFAULT_TILE,
@@ -47,7 +48,7 @@ impl Default for Dave {
 
 impl Dave {
     pub fn reset(&mut self) {
-        *self = Self::default();
+        *self = Self::default()
     }
 
     pub fn move_left(&mut self, displacement: u32) {
@@ -78,10 +79,6 @@ impl Dave {
         self.is_alive = false;
     }
 
-    pub fn collect(&mut self, points: u32) {
-        self.score += points;
-    }
-
     pub fn move_up(&mut self, displacement: u32) {
         if self.is_alive {
             self.py -= displacement;
@@ -110,9 +107,7 @@ impl Dave {
     }
 
     pub fn decr_dead_timer(&mut self) {
-        if self.dead_timer > 0 && !self.is_alive {
-            self.dead_timer -= 1;
-        }
+        self.dead_timer -= 1;
     }
 
     pub fn init_dave_position(&mut self, level_num: u8) {
@@ -124,5 +119,39 @@ impl Dave {
     pub fn update_position(&mut self, x_shift: i32) {
         // x_shift is bounded and handled by default
         self.px = ((self.px as i32) - (x_shift * GAME_TILE_SIZE as i32)) as u32;
+    }
+
+    pub fn get_rect(&self, direction: Direction) -> Rect {
+        let hitbox_w = DAVE_CHILL_W;
+        let hitbox_h = DAVE_CHILL_H;
+
+        // be extra careful with the u32 to i32 conversions
+        match direction {
+            Direction::Up => Rect::new(
+                self.px as i32,
+                (self.py - DAVE_SPEED) as i32,
+                hitbox_w,
+                hitbox_h,
+            ),
+            Direction::Down => Rect::new(
+                self.px as i32,
+                (self.py + DAVE_SPEED) as i32,
+                hitbox_w,
+                hitbox_h,
+            ),
+            Direction::Left => Rect::new(
+                (self.px - DAVE_SPEED) as i32,
+                self.py as i32,
+                hitbox_w,
+                hitbox_h,
+            ),
+            Direction::Right => Rect::new(
+                (self.px + DAVE_SPEED) as i32,
+                self.py as i32,
+                hitbox_w,
+                hitbox_h,
+            ),
+            Direction::Chill => Rect::new(self.px as i32, self.py as i32, hitbox_w, hitbox_h),
+        }
     }
 }
