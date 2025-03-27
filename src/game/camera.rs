@@ -1,6 +1,8 @@
 use std::cmp;
 
-use crate::config::{DAVE_CHILL_W, GAME_TILE_SIZE, SCROLL_THRESHOLD, TOTAL_VIEWPORT_TILES_X};
+use crate::config::{
+    DAVE_CHILL_W, GAME_TILE_SIZE, SCALE, SCROLL_THRESHOLD, TOTAL_VIEWPORT_TILES_X,
+};
 
 use super::state::GameState;
 
@@ -39,7 +41,7 @@ impl Camera {
             if is_left_boundary_crossed {
                 x_shift = cmp::max(
                     -(state.camera.x as i32),
-                    -((*TOTAL_VIEWPORT_TILES_X - 6) as i32),
+                    -((*TOTAL_VIEWPORT_TILES_X - 3 * SCROLL_THRESHOLD) as i32),
                 );
 
                 // update camera
@@ -51,7 +53,7 @@ impl Camera {
                 // can be -ve ot +ve
                 x_shift = cmp::min(
                     (100 - state.camera.x - *TOTAL_VIEWPORT_TILES_X) as i32,
-                    (*TOTAL_VIEWPORT_TILES_X - 7) as i32,
+                    (*TOTAL_VIEWPORT_TILES_X - (3 * SCROLL_THRESHOLD + 1)) as i32,
                 );
 
                 // update camera

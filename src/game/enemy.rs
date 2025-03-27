@@ -2,12 +2,12 @@ use sdl2::rect::Rect;
 
 use crate::{
     config::{
-        DEAD_TIMER, ENEMY_BULLET_TILE, ENEMY_COOLDOWN, GAME_TILE_SIZE, SCALE, SHOOTING_ENEMIES,
-        TOTAL_VIEWPORT_TILES_X,
+        BULLET_COOLDOWN, DEAD_TIMER, ENEMY_BULLET_TILE, ENEMY_COOLDOWN, GAME_TILE_SIZE, SCALE,
+        SHOOTING_ENEMIES, TOTAL_VIEWPORT_TILES_X,
     },
     physics::collisions::CollisionDetector,
     render::tile_atlas::TileAtlas,
-    resources::direction::{self, Direction},
+    resources::direction::Direction,
 };
 
 use super::{
@@ -24,7 +24,8 @@ pub struct Enemy {
     pub py: u32,
     pub path_index: u32,
     pub dead_timer: i8,
-    pub cooldown: u8,
+    pub bullet_cooldown: u8,
+    pub enemy_cooldown: u8,
     pub is_alive: bool,
     pub bullet: Bullet,
     pub can_shoot: bool,
@@ -39,7 +40,8 @@ impl Enemy {
             py: (y + 1) * GAME_TILE_SIZE, // +1 because of top row on screen
             path_index: 0,
             dead_timer: DEAD_TIMER,
-            cooldown: ENEMY_COOLDOWN,
+            bullet_cooldown: BULLET_COOLDOWN,
+            enemy_cooldown: ENEMY_COOLDOWN,
             is_alive: true,
             bullet: Bullet::new(ENEMY_BULLET_TILE),
             can_shoot,
@@ -96,8 +98,8 @@ impl Enemy {
     pub fn update_enemy(&mut self, level: &Level, dave: &Dave, camera: Camera) {
         if self.is_alive {
             // check the cooldown, decrement it if not 0
-            if self.cooldown > 0 {
-                self.cooldown -= 1;
+            if self.enemy_cooldown > 0 {
+                self.enemy_cooldown -= 1;
                 return;
             }
 
@@ -109,8 +111,8 @@ impl Enemy {
 
             self.path_index = (self.path_index + 1) % level.path.len() as u32;
 
-            // set the cooldown
-            self.cooldown = ENEMY_COOLDOWN;
+            // reset enemy cooldown
+            self.enemy_cooldown = ENEMY_COOLDOWN;
         } else if self.dead_timer > 0 {
             self.dead_timer -= 1;
         }
@@ -140,10 +142,17 @@ impl Enemy {
                 self.bullet.is_active = false;
             }
         } else if self.is_enemy_on_screen(camera) && self.can_shoot {
+            // check the bullet_cooldown, decrement it if not 0
+            if self.bullet_cooldown > 0 {
+                self.bullet_cooldown -= 1;
+                return;
+            }
             let px = self.px as i32 - (camera.x * GAME_TILE_SIZE) as i32;
             let py = self.py as i32;
             let direction = self.get_shoot_direction(dave, camera);
             self.bullet.fire(px, py, direction, self.tile);
+            // reset the bullet_cooldown
+            self.bullet_cooldown = BULLET_COOLDOWN;
         }
     }
 
@@ -158,8 +167,12 @@ impl Enemy {
 
     /// Check if enemy is visible on screen
     pub fn is_enemy_on_screen(&self, camera: Camera) -> bool {
+        let (w, h) = TileAtlas::get_dimension(self.tile);
         let diff = self.px as i32 - (camera.x * GAME_TILE_SIZE) as i32;
-        let is_visible = diff >= 0 && diff <= (*TOTAL_VIEWPORT_TILES_X * GAME_TILE_SIZE) as i32;
+        let left_boundary_check: bool = diff >= 0 || diff + w as i32 >= 0;
+        let right_boundary_check: bool = diff <= (*TOTAL_VIEWPORT_TILES_X * GAME_TILE_SIZE) as i32
+            || (diff - w as i32) <= (*TOTAL_VIEWPORT_TILES_X * GAME_TILE_SIZE) as i32;
+        let is_visible = left_boundary_check && right_boundary_check;
         self.is_alive && is_visible
     }
 
