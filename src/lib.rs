@@ -6,19 +6,24 @@ pub mod game {
     pub mod actions;
     pub mod bullet;
     pub mod camera;
+    pub mod collectibles;
     pub mod dave;
     pub mod enemy;
     pub mod game;
     pub mod game_loop;
+    pub mod game_manager;
+    pub mod game_rules;
+    pub mod init;
+    // pub mod game_rules;
     pub mod level;
     pub mod state;
 }
 
 // Input Handling
 pub mod input {
-    pub mod gamepad;
     pub mod input_handler;
     pub mod keyboard;
+    pub mod player_controller;
 }
 
 // Physics Engine

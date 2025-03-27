@@ -1,10 +1,18 @@
 use std::cmp;
 use std::i32::MAX;
 
-use sdl2::rect::Rect;
+use sdl2::rect::{Point, Rect};
 
-use crate::config::{self, DAVE_SPEED, GAME_TILE_SIZE};
-use crate::game::dave::Dave;
+use crate::config::{
+    self, COLLECTIBLES, DANGER_TILES, DAVE_CHILL_H, DAVE_CHILL_W, DAVE_SPEED, DAVE_SPEED_X,
+    DOOR_TILE, GAME_TILE_SIZE, SCALE, SOLID_TILES,
+};
+use crate::game::bullet::{self, Bullet};
+use crate::game::camera::{self, Camera};
+use crate::game::collectibles::CollectibleManager;
+use crate::game::dave::{self, Dave};
+use crate::game::enemy::{self, Enemy};
+use crate::game::level::Level;
 use crate::game::state::GameState;
 use crate::render::tile_atlas::TileAtlas;
 use crate::resources::direction::{self, Direction};
@@ -13,73 +21,94 @@ pub struct CollisionDetector;
 
 impl CollisionDetector {
     /// ✅ Checks if any corner of `dave_rect` collides with a solid tile
-    pub fn check_collision(state: &GameState, direction: Direction) -> i32 {
-        let tile_size_f = config::GAME_TILE_SIZE as f32;
-        let tile_size = config::GAME_TILE_SIZE as u32;
-
-        let dave_rect = Self::get_apparent_rect(&state.dave, direction);
-
+    pub fn check_solid_tile_collision(
+        level: &Level,
+        camera: Camera,
+        rect: Rect,
+        direction: Direction,
+    ) -> bool {
         // ✅ Extract all four corners
-        let corners = [
-            dave_rect.top_left(),
-            dave_rect.top_right(),
-            dave_rect.bottom_left(),
-            dave_rect.bottom_right(),
-        ];
+        let corners = Self::get_corners(rect, direction);
 
-        for &corner in &corners {
+        for corner in &corners {
             // ✅ Convert pixel coordinates to tile index (floor division)
-            let tile_x = (corner.x as f32 / tile_size_f).floor() as i32;
-            let tile_y = (corner.y as f32 / tile_size_f).floor() as i32;
+            let tile_x = (corner.x as f32 / GAME_TILE_SIZE as f32).floor() as u32;
+            let tile_y = (corner.y as f32 / GAME_TILE_SIZE as f32).floor() as u32;
 
             // ✅ Retrieve the tile rectangle from TileAtlas
-            let tile = state.level.get_tile(state.camera.x, tile_x, tile_y);
+            let tile = level.get_tile(camera.x, tile_x, tile_y);
 
             // ✅ Check for intersection with Dave’s rectangle
             if Self::is_solid(tile) {
                 let tile_rect = Rect::new(
-                    tile_x * tile_size as i32,
-                    tile_y * tile_size as i32,
-                    tile_size,
-                    tile_size,
+                    (tile_x * GAME_TILE_SIZE) as i32,
+                    (tile_y * GAME_TILE_SIZE) as i32,
+                    GAME_TILE_SIZE,
+                    GAME_TILE_SIZE,
                 );
-                if dave_rect.has_intersection(tile_rect) {
-                    return 0; // 🚨 Collision detected!
+                // if rect.has_intersection(tile_rect) {
+                //     return true; // 🚨 Collision detected!
+                // }
+                // 🔥 Use strict overlap condition instead of `has_intersection()`
+                if Self::is_strict_overlap(rect, tile_rect) {
+                    return true; // 🚨 Collision detected!
                 }
             }
         }
-
-        DAVE_SPEED // ✅ No collision detected
+        false
     }
 
-    /// ✅ Returns only relevant hitbox corners based on movement direction
-    fn get_apparent_rect(dave: &Dave, direction: Direction) -> Rect {
-        let hitbox_w = config::DAVE_CHILL_W;
-        let hitbox_h = config::DAVE_CHILL_H;
-
+    pub fn get_corners(rect: Rect, direction: Direction) -> Vec<(Point)> {
         match direction {
-            Direction::Up => Rect::new(dave.px, dave.py - DAVE_SPEED, hitbox_w, hitbox_h),
-            Direction::Down => Rect::new(dave.px, dave.py + DAVE_SPEED, hitbox_w, hitbox_h),
-            Direction::Left => Rect::new(dave.px - DAVE_SPEED, dave.py, hitbox_w, hitbox_h),
-            Direction::Right => Rect::new(dave.px + DAVE_SPEED, dave.py, hitbox_w, hitbox_h),
-            Direction::Chill => todo!(),
+            Direction::Up => vec![rect.top_left(), rect.top_right()],
+            Direction::Down => vec![rect.bottom_left(), rect.bottom_right()],
+            Direction::Left => vec![rect.top_left(), rect.bottom_left()],
+            Direction::Right => vec![rect.top_right(), rect.bottom_right()],
+            Direction::Chill => vec![
+                rect.top_left(),
+                rect.top_right(),
+                rect.bottom_left(),
+                rect.bottom_right(),
+            ], // return all four corners
         }
     }
 
-    pub fn get_displacement(tile_x: i32, tile_y: i32, dave: &Dave, direction: Direction) -> i32 {
-        let tile_size = config::GAME_TILE_SIZE as i32;
-        let dave_h = config::DAVE_CHILL_H as i32;
-        let dave_w = config::DAVE_CHILL_W as i32;
-        match direction {
-            Direction::Left => dave.px - (tile_x + 1) * tile_size,
-            Direction::Right => (tile_x * tile_size) - (dave.px + dave_w),
-            Direction::Up => dave.py - (tile_y + 1) * tile_size,
-            Direction::Down => tile_y * tile_size - (dave.py + dave_h),
-            Direction::Chill => 0,
-        }
+    fn is_strict_overlap(rect1: Rect, rect2: Rect) -> bool {
+        rect1.x < rect2.x + rect2.width() as i32
+            && rect1.x + rect1.width() as i32 > rect2.x
+            && rect1.y < rect2.y + rect2.height() as i32
+            && rect1.y + rect1.height() as i32 > rect2.y
     }
+
+    /// ✅ Check collision with Dave
+    pub fn check_collision(rect1: Rect, rect2: Rect) -> bool {
+        // check for enemy tile collision
+        if Self::is_strict_overlap(rect1, rect2) {
+            return true;
+        }
+        false
+    }
+
+    // pub fn get_displacement(tile_x: u32, tile_y: u32, dave: &Dave, direction: Direction) -> u32 {
+    //     let tile_size = GAME_TILE_SIZE as i32;
+    //     let dave_h = DAVE_CHILL_H as i32;
+    //     let dave_w = DAVE_CHILL_W as i32;
+
+    //     // be extra careful with the u32 to i32 conversions
+    //     match direction {
+    //         Direction::Left => dave.px - (tile_x + 1) * tile_size,
+    //         Direction::Right => (tile_x * tile_size) - (dave.px + dave_w),
+    //         Direction::Up => dave.py - (tile_y + 1) * tile_size,
+    //         Direction::Down => tile_y * tile_size - (dave.py + dave_h),
+    //         Direction::Chill => 0,
+    //     }
+    // }
 
     pub fn is_solid(tile: u8) -> bool {
-        config::SOLID_TILES.contains(&tile)
+        SOLID_TILES.contains(&tile)
+    }
+
+    pub fn is_collectible(tile: &u8) -> bool {
+        COLLECTIBLES.contains_key(tile)
     }
 }

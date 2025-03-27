@@ -7,6 +7,12 @@ pub enum Direction {
     Chill,
 }
 
+impl Default for Direction {
+    fn default() -> Self {
+        Direction::Chill
+    }
+}
+
 impl Direction {
     /// Returns the opposite direction
     pub fn opposite(self) -> Self {
@@ -27,5 +33,13 @@ impl Direction {
     /// Checks if the direction is vertical (Up/Down)
     pub fn is_vertical(self) -> bool {
         matches!(self, Direction::Up | Direction::Down)
+    }
+
+    pub fn is_left(self) -> bool {
+        matches!(self, Direction::Left)
+    }
+
+    pub fn is_right(self) -> bool {
+        matches!(self, Direction::Right)
     }
 }

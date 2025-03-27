@@ -2,12 +2,13 @@ use sdl2::image::LoadTexture;
 use sdl2::Sdl;
 use std::time::{Duration, Instant};
 
+use crate::game::game_manager::GameManager;
 use crate::game::state::GameState;
 use crate::input::input_handler::InputHandler;
 use crate::physics::physics::PhysicsEngine;
 use crate::render::renderer::Renderer;
 
-const FRAME_TIME_MS: u64 = 1000 / 60; // 60 FPS → 16ms per frame
+const FRAME_TIME_MS: u64 = 1000 / 30; // 30 FPS → 33ms per frame
 
 pub struct GameLoop;
 
@@ -27,18 +28,18 @@ impl GameLoop {
         let mut input_handler = InputHandler::new(sdl_cxt)?;
 
         // Initialize level
-        state.init_level(&renderer);
+        state.init_level();
 
         // Main game loop
         'running: loop {
             let frame_start = Instant::now(); // Start frame timer
 
-            if input_handler.handle_input(state) {
+            if input_handler.handle_input() {
                 break 'running;
             }
 
             // update game
-            Self::game_update(state, &input_handler);
+            GameManager::update(state, &input_handler);
 
             // Game logic update goes here (player movement, collision handling, etc.)
             renderer.render(state, &texture);
@@ -55,10 +56,5 @@ impl GameLoop {
 
         println!("Game loop has ended. Cleaning up...");
         Ok(())
-    }
-
-    pub fn game_update(state: &mut GameState, input_handler: &InputHandler) {
-        // ✅ Apply physics (gravity, movement, jumping)
-        PhysicsEngine::apply_physics(state, &input_handler);
     }
 }

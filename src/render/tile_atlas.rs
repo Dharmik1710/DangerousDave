@@ -2,6 +2,11 @@ use sdl2::rect::Rect;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
+use crate::{
+    config::{CUP_TILES, DAVE_DEFAULT_TILE, SCALE},
+    resources::direction::{self, Direction},
+};
+
 pub static TILE_MAP: LazyLock<HashMap<u8, Rect>> = LazyLock::new(|| {
     [
         (144, Rect::new(0, 0, 112, 47)),
@@ -172,18 +177,62 @@ pub struct TileAtlas;
 
 impl TileAtlas {
     /// ✅ Retrieves a `Rect` for a given tile ID
-    pub fn get_offset(tile_id: u8) -> Rect {
-        *TILE_MAP.get(&tile_id).unwrap_or(&Rect::new(0, 0, 0, 0))
+    pub fn get_rect(tile_num: u8) -> Rect {
+        *TILE_MAP.get(&tile_num).unwrap()
+    }
+
+    pub fn get_scaled_rect(tile_num: u8) -> Rect {
+        let mut tile = *TILE_MAP.get(&tile_num).unwrap();
+        tile.set_width(tile.width() * SCALE);
+        tile.set_height(tile.height() * SCALE);
+        tile
     }
 
     /// ✅ Checks if a tile exists in the map
-    pub fn has_tile(tile_id: u8) -> bool {
-        TILE_MAP.contains_key(&tile_id)
+    pub fn has_tile(tile_num: u8) -> bool {
+        TILE_MAP.contains_key(&tile_num)
     }
 
     /// ✅ get dave tile
     pub fn get_dave() -> Rect {
-        let dave_tile = 54;
-        *TILE_MAP.get(&dave_tile).unwrap_or(&Rect::new(0, 0, 0, 0))
+        let dave_tile = DAVE_DEFAULT_TILE;
+        *TILE_MAP.get(&dave_tile).unwrap()
+    }
+
+    /// get enemy
+    pub fn get_enemy(tile_num: u8) -> Rect {
+        *TILE_MAP.get(&tile_num).unwrap()
+    }
+
+    /// return width and height
+    pub fn get_dimension(tile_num: u8) -> (u32, u32) {
+        let rect = *TILE_MAP.get(&tile_num).unwrap();
+        (rect.width() * SCALE, rect.height() * SCALE)
+    }
+
+    pub fn get_bullet(direction: Direction) -> Rect {
+        let tile_num = 126;
+        *TILE_MAP.get(&tile_num).unwrap()
+    }
+
+    pub fn get_digit(digit_index: i32) -> Rect {
+        let tile_id = 148 + digit_index as u8;
+        *TILE_MAP.get(&tile_id).unwrap()
+    }
+
+    pub fn get_dave_face() -> Rect {
+        *TILE_MAP.get(&143).unwrap()
+    }
+
+    pub fn get_score_text() -> Rect {
+        *TILE_MAP.get(&137).unwrap()
+    }
+
+    pub fn get_level_text() -> Rect {
+        *TILE_MAP.get(&136).unwrap()
+    }
+
+    pub fn get_dave_text() -> Rect {
+        *TILE_MAP.get(&135).unwrap()
     }
 }
