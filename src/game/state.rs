@@ -1,12 +1,8 @@
-use std::vec;
-
-use crate::render::renderer::Renderer;
-
-use super::bullet::Bullet;
 use super::camera::{self, Camera};
 use super::dave::Dave;
 use super::enemy::Enemy;
 use super::level::{self, Level};
+use std::vec;
 
 #[derive(Debug, Clone)]
 pub struct GameState {
@@ -18,17 +14,13 @@ pub struct GameState {
     pub enemies: Vec<Enemy>,
     pub level: Level,
     pub quit: bool,
-    pub jetpack: u32,
-    pub has_cup: bool,
-    pub has_gun: bool,
-    pub on_door: bool,
     pub game_over: bool,
 }
 
 impl Default for GameState {
     fn default() -> Self {
         Self {
-            current_level: 2,
+            current_level: 5,
             score: 0,
             lives: 5,
             camera: Camera::default(),
@@ -36,44 +28,40 @@ impl Default for GameState {
             enemies: vec![],
             level: Level::default(),
             quit: false,
-            jetpack: 0,
-            has_cup: false,
-            has_gun: false,
-            on_door: false,
             game_over: false,
         }
     }
 }
 
 impl GameState {
-    pub fn reset(&mut self) {
+    pub fn reset(&mut self, is_level_reset: bool) {
         // reset camera
         self.camera.reset();
 
         // reset dave
-        self.dave.reset();
-
-        // reset enemies bullet
-        self.enemies
-            .iter_mut()
-            .for_each(|enemy| enemy.bullet.reset());
+        self.dave.reset(is_level_reset);
 
         // Start dave from original position
         self.dave.init_dave_position(self.current_level);
 
         // update tiles in hashmap
         self.level.update_visible_tiles(&self.camera);
+
+        // reset enemies bullet
+        self.enemies
+            .iter_mut()
+            .for_each(|enemy| enemy.bullet.deactivate());
     }
 
     pub fn init_level(&mut self) {
         // load the level
         self.level.load(self.current_level);
 
-        // reset
-        self.reset();
-
         // load enemies
         self.enemies = Enemy::spawn_enemies(self.current_level);
+
+        // reset
+        self.reset(true);
     }
 
     pub fn respawn_dave(&mut self) {
@@ -86,11 +74,7 @@ impl GameState {
         self.lives -= 1;
 
         // reset
-        self.reset();
-    }
-
-    pub fn is_level_complete(&self) -> bool {
-        self.dave.is_alive && self.has_cup && self.on_door
+        self.reset(false);
     }
 
     pub fn collect(&mut self, points: u32) {

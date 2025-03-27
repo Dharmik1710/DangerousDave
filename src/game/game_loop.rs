@@ -34,7 +34,7 @@ impl GameLoop {
         'running: loop {
             let frame_start = Instant::now(); // Start frame timer
 
-            if input_handler.handle_input(state) {
+            if input_handler.handle_input() {
                 break 'running;
             }
 

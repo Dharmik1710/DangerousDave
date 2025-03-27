@@ -13,6 +13,7 @@ use crate::game::dave::Dave;
 use crate::game::enemy::{self, Enemy};
 use crate::game::level::Level;
 use crate::game::state::GameState;
+use crate::resources::direction::Direction;
 
 pub struct Renderer {
     pub canvas: Canvas<Window>,
@@ -84,6 +85,7 @@ impl Renderer {
     }
 
     fn render_dave(&mut self, dave: &Dave, texture: &Texture) {
+        // render dave
         if dave.is_alive {
             let src_rect = TileAtlas::get_dave();
             let dest_rect = Rect::new(dave.px as i32, dave.py as i32, DAVE_CHILL_W, DAVE_CHILL_H);
@@ -98,26 +100,41 @@ impl Renderer {
                 eprintln!("Failed to render dave: {}", e);
             }
         }
+        // render bullet
+        if dave.has_gun && dave.bullet.is_active {
+            let src_rect_bullet = TileAtlas::get_rect(dave.bullet.tile);
+            let dest_rect_bullet = dave.bullet.get_rect(Direction::Chill);
+            if let Err(e) = self.canvas.copy(texture, src_rect_bullet, dest_rect_bullet) {
+                eprintln!("Failed to render enemy nullet: {}", e);
+            }
+        }
     }
 
     fn render_enemies(&mut self, enemies: &[Enemy], texture: &Texture, camera: Camera) {
         for enemy in enemies.iter() {
-            if enemy.is_alive {
-                // render enemy
-                if enemy.is_enemy_on_screen(camera) {
-                    let src_rect_enemy = TileAtlas::get_enemy(enemy.tile);
-                    let dest_rect_enemy = enemy.get_rect(camera);
-                    if let Err(e) = self.canvas.copy(texture, src_rect_enemy, dest_rect_enemy) {
-                        eprintln!("Failed to render enemy: {}", e);
-                    }
+            // render enemy
+            if enemy.is_enemy_on_screen(camera) {
+                let src_rect_enemy = TileAtlas::get_enemy(enemy.tile);
+                let dest_rect_enemy = enemy.get_rect(camera);
+                if let Err(e) = self.canvas.copy(texture, src_rect_enemy, dest_rect_enemy) {
+                    eprintln!("Failed to render enemy: {}", e);
                 }
-                // render bullet
-                if enemy.can_shoot && enemy.bullet.is_active {
-                    let src_rect_bullet = TileAtlas::get_bullet(enemy.bullet.direction);
-                    let dest_rect_bullet = enemy.bullet.get_rect();
-                    if let Err(e) = self.canvas.copy(texture, src_rect_bullet, dest_rect_bullet) {
-                        eprintln!("Failed to render enemy nullet: {}", e);
-                    }
+            } else if enemy.dead_timer > 0 {
+                let src_rect = TileAtlas::get_rect(DEAD_TILE);
+                let (dead_w, dead_h) = TileAtlas::get_dimension(DEAD_TILE);
+                let mut dest_rect = enemy.get_rect(camera);
+                dest_rect.set_width(dead_w);
+                dest_rect.set_height(dead_h);
+                if let Err(e) = self.canvas.copy(texture, src_rect, dest_rect) {
+                    eprintln!("Failed to render dave: {}", e);
+                }
+            }
+            // render bullet
+            if enemy.can_shoot && enemy.bullet.is_active {
+                let src_rect_bullet = TileAtlas::get_bullet(enemy.bullet.direction);
+                let dest_rect_bullet = enemy.bullet.get_rect(Direction::Chill);
+                if let Err(e) = self.canvas.copy(texture, src_rect_bullet, dest_rect_bullet) {
+                    eprintln!("Failed to render enemy nullet: {}", e);
                 }
             }
         }

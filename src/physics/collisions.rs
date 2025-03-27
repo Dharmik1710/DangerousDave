@@ -7,10 +7,12 @@ use crate::config::{
     self, COLLECTIBLES, DANGER_TILES, DAVE_CHILL_H, DAVE_CHILL_W, DAVE_SPEED, DAVE_SPEED_X,
     DOOR_TILE, GAME_TILE_SIZE, SCALE, SOLID_TILES,
 };
-use crate::game::camera::Camera;
+use crate::game::bullet::{self, Bullet};
+use crate::game::camera::{self, Camera};
 use crate::game::collectibles::CollectibleManager;
 use crate::game::dave::{self, Dave};
 use crate::game::enemy::{self, Enemy};
+use crate::game::level::Level;
 use crate::game::state::GameState;
 use crate::render::tile_atlas::TileAtlas;
 use crate::resources::direction::{self, Direction};
@@ -19,20 +21,22 @@ pub struct CollisionDetector;
 
 impl CollisionDetector {
     /// ✅ Checks if any corner of `dave_rect` collides with a solid tile
-    pub fn check_solid_tile_collision(state: &GameState, direction: Direction) -> u32 {
-        // Dave rect
-        let dave_rect = state.dave.get_rect(direction);
-
+    pub fn check_solid_tile_collision(
+        level: &Level,
+        camera: Camera,
+        rect: Rect,
+        direction: Direction,
+    ) -> bool {
         // ✅ Extract all four corners
-        let corners = Self::get_corners(&dave_rect, direction);
+        let corners = Self::get_corners(rect, direction);
 
-        for &corner in &corners {
+        for corner in &corners {
             // ✅ Convert pixel coordinates to tile index (floor division)
             let tile_x = (corner.x as f32 / GAME_TILE_SIZE as f32).floor() as u32;
             let tile_y = (corner.y as f32 / GAME_TILE_SIZE as f32).floor() as u32;
 
             // ✅ Retrieve the tile rectangle from TileAtlas
-            let tile = state.level.get_tile(state.camera.x, tile_x, tile_y);
+            let tile = level.get_tile(camera.x, tile_x, tile_y);
 
             // ✅ Check for intersection with Dave’s rectangle
             if Self::is_solid(tile) {
@@ -42,22 +46,15 @@ impl CollisionDetector {
                     GAME_TILE_SIZE,
                     GAME_TILE_SIZE,
                 );
-                if dave_rect.has_intersection(tile_rect) {
-                    return 0; // 🚨 Collision detected!
+                if rect.has_intersection(tile_rect) {
+                    return true; // 🚨 Collision detected!
                 }
             }
         }
-        // ✅ No collision detected
-        if direction.is_horizontal() {
-            DAVE_SPEED_X
-        } else if direction.is_vertical() {
-            DAVE_SPEED
-        } else {
-            0
-        }
+        false
     }
 
-    pub fn get_corners(rect: &Rect, direction: Direction) -> Vec<(Point)> {
+    pub fn get_corners(rect: Rect, direction: Direction) -> Vec<(Point)> {
         match direction {
             Direction::Up => vec![rect.top_left(), rect.top_right()],
             Direction::Down => vec![rect.bottom_left(), rect.bottom_right()],
@@ -73,24 +70,10 @@ impl CollisionDetector {
     }
 
     /// ✅ Check collision with Dave
-    pub fn check_collision_with_enemy(camera: Camera, enemy: &Enemy, dave_rect: Rect) -> bool {
+    pub fn check_collision(rect1: Rect, rect2: Rect) -> bool {
         // check for enemy tile collision
-        if enemy.is_enemy_on_screen(camera) && enemy.is_alive {
-            let enemy_rect = enemy.get_rect(camera);
-            if enemy_rect.has_intersection(dave_rect) {
-                return true;
-            }
-        }
-        false
-    }
-
-    pub fn check_collision_with_bullet(enemy: &Enemy, rect: Rect) -> bool {
-        // check for enemy bullet collision
-        if enemy.bullet.is_active {
-            let bullet_rect = enemy.bullet.get_rect();
-            if bullet_rect.has_intersection(rect) {
-                return true;
-            }
+        if rect1.has_intersection(rect2) {
+            return true;
         }
         false
     }

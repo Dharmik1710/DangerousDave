@@ -21,9 +21,9 @@ pub mod game {
 
 // Input Handling
 pub mod input {
-    pub mod gamepad;
     pub mod input_handler;
     pub mod keyboard;
+    pub mod player_controller;
 }
 
 // Physics Engine

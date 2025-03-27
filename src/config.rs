@@ -26,19 +26,26 @@ pub static DAVE_CHILL_H: u32 = 16 * SCALE;
 // pub static DAVE_JETPACK_H: i32 = 16 * SCALE;
 
 pub const DAVE_SPEED: u32 = 2; // 4 pixels per frame
-pub const DAVE_SPEED_X: u32 = 3;
+pub const DAVE_SPEED_X: u32 = 4;
 pub static DAVE_JUMP: u32 = 16 * 2 * SCALE;
 pub static DAVE_JUMP_COOLDOWN: u32 = 10; // total
 pub static DAVE_JUMP_UP_COOLDOWN: u32 = 3;
 pub static DAVE_DEFAULT_TILE: u8 = 54;
 
-pub static DEAD_TIMER: i8 = 30;
+pub static DEAD_TIMER: i8 = 60;
+
 pub static DEAD_TILE: u8 = 129;
 pub static DOOR_TILE: u8 = 2;
+pub static DAVE_BULLET_TILE: u8 = 127;
+pub static ENEMY_BULLET_TILE: u8 = 124;
 
-pub static ENEMY_COOLDOWN: u8 = 0;
+pub static ENEMY_COOLDOWN: u8 = 2;
 
-pub static BULLET_SPEED: u8 = 4;
+pub static BULLET_SPEED: i32 = 5 * SCALE as i32;
+
+pub static GUN_TILE: u8 = 20;
+pub static JETPACK_TILE: u8 = 4;
+pub static JETPACK_FUEL: u32 = 10000;
 
 /// 🚀 Static set of solid tiles (never changes)
 pub static SOLID_TILES: LazyLock<HashSet<u8>> = LazyLock::new(|| {
@@ -56,16 +63,16 @@ pub static SOLID_TILES: LazyLock<HashSet<u8>> = LazyLock::new(|| {
 pub static SHOOTING_ENEMIES: LazyLock<HashSet<u8>> = LazyLock::new(|| {
     HashSet::from([
         89, 90, 91, 91, // brown monsters
+        93, 94, 95, 96, // pink
     ])
 });
 
 /// 🚀 Static collectibles mapping (tile_id -> score)
 pub static COLLECTIBLES: LazyLock<HashMap<u8, u32>> = LazyLock::new(|| {
     HashMap::from([
-        // Diamond gives 1000 points
-        (47, 1000),
-        (49, 2000),
-        (48, 500),
+        (47, 100), // Diamond gives 1000 points
+        // (49, 2000),
+        // (48, 500),
         (10, 0), // cup
         (11, 0), // cup
         (12, 0), // cup
@@ -79,7 +86,7 @@ pub static COLLECTIBLES: LazyLock<HashMap<u8, u32>> = LazyLock::new(|| {
 pub static DANGER_TILES: LazyLock<HashSet<u8>> = LazyLock::new(|| {
     HashSet::from([
         6, 7, 8, 9, // fire
-        25, 26, 27, 28, // pink weed
+        // 25, 26, 27, 28, // pink weed
         36, 37, 38, 39, 40, // water
     ])
 });

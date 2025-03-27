@@ -1,7 +1,11 @@
 use sdl2::rect::Rect;
 
 use crate::{
-    config::{ENEMY_COOLDOWN, GAME_TILE_SIZE, SCALE, SHOOTING_ENEMIES, TOTAL_VIEWPORT_TILES_X},
+    config::{
+        DEAD_TIMER, ENEMY_BULLET_TILE, ENEMY_COOLDOWN, GAME_TILE_SIZE, SCALE, SHOOTING_ENEMIES,
+        TOTAL_VIEWPORT_TILES_X,
+    },
+    physics::collisions::CollisionDetector,
     render::tile_atlas::TileAtlas,
     resources::direction::{self, Direction},
 };
@@ -10,7 +14,8 @@ use super::{
     bullet::{self, Bullet},
     camera::Camera,
     dave::Dave,
-    state::GameState,
+    level::Level,
+    state::{self, GameState},
 };
 
 #[derive(Debug, Clone, Default)]
@@ -18,7 +23,7 @@ pub struct Enemy {
     pub px: u32,
     pub py: u32,
     pub path_index: u32,
-    pub dead_timer: u32,
+    pub dead_timer: i8,
     pub cooldown: u8,
     pub is_alive: bool,
     pub bullet: Bullet,
@@ -33,10 +38,10 @@ impl Enemy {
             px: x * GAME_TILE_SIZE,
             py: y * GAME_TILE_SIZE,
             path_index: 0,
-            dead_timer: 0,
+            dead_timer: DEAD_TIMER,
             cooldown: ENEMY_COOLDOWN,
             is_alive: true,
-            bullet: Bullet::default(),
+            bullet: Bullet::new(ENEMY_BULLET_TILE),
             can_shoot,
             tile,
         }
@@ -88,7 +93,7 @@ impl Enemy {
     }
 
     /// ✅ Moves the enemy (Patrolling, AI, etc.)
-    pub fn update_enemy(&mut self, path: &[(i8, i8)], dave: &Dave, camera: Camera) {
+    pub fn update_enemy(&mut self, level: &Level, dave: &Dave, camera: Camera) {
         if self.is_alive {
             // check the cooldown, decrement it if not 0
             if self.cooldown > 0 {
@@ -97,30 +102,43 @@ impl Enemy {
             }
 
             // ✅ Extract delta x and y
-            let (dx, dy) = path[self.path_index as usize];
+            let (dx, dy) = level.path[self.path_index as usize];
 
-            self.px = (self.px as i32 + dx as i32).max(0) as u32;
-            self.py = (self.py as i32 + dy as i32).max(0) as u32;
+            self.px = (self.px as i32 + (dx as i32) * (SCALE as i32)).max(0) as u32;
+            self.py = (self.py as i32 + (dy as i32) * (SCALE as i32)).max(0) as u32;
 
-            self.path_index = (self.path_index + 1) % path.len() as u32;
+            self.path_index = (self.path_index + 1) % level.path.len() as u32;
 
             // set the cooldown
             self.cooldown = ENEMY_COOLDOWN;
-
-            self.shoot(dave, camera, dx);
         } else if self.dead_timer > 0 {
             self.dead_timer -= 1;
         }
+
+        // this is to handle edge case in case the enemy dies
+        // but its bullet is still on screen
+        self.shoot(dave, camera, level);
     }
 
     /// shoot
-    pub fn shoot(&mut self, dave: &Dave, camera: Camera, dx: i8) {
+    pub fn shoot(&mut self, dave: &Dave, camera: Camera, level: &Level) {
         // shoot only when all of these are true
         //  - bullet is not active
         //  - the enemy is on screen
         //  - enemy can shoot
         if self.bullet.is_active {
-            self.bullet.update();
+            // check collision of bullet with solid tiles before updating
+            let bullet_rect = self.bullet.get_rect(self.bullet.direction);
+            if !CollisionDetector::check_solid_tile_collision(
+                level,
+                camera,
+                bullet_rect,
+                self.bullet.direction,
+            ) {
+                self.bullet.update();
+            } else {
+                self.bullet.is_active = false;
+            }
         } else if self.is_enemy_on_screen(camera) && self.can_shoot {
             let px = self.px as i32 - (camera.x * GAME_TILE_SIZE) as i32;
             let py = self.py as i32;

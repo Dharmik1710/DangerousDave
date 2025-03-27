@@ -70,7 +70,8 @@ impl Camera {
                 .iter_mut()
                 .for_each(|enemy| enemy.bullet.upadate_as_per_cam(x_shift));
 
-            // TODO: update dave's bullet
+            // update dave's bullet
+            state.dave.bullet.upadate_as_per_cam(x_shift);
         }
     }
 
