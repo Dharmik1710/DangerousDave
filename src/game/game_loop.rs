@@ -8,7 +8,7 @@ use crate::input::input_handler::InputHandler;
 use crate::physics::physics::PhysicsEngine;
 use crate::render::renderer::Renderer;
 
-const FRAME_TIME_MS: u64 = 1000 / 60; // 60 FPS → 16ms per frame
+const FRAME_TIME_MS: u64 = 1000 / 30; // 30 FPS → 33ms per frame
 
 pub struct GameLoop;
 

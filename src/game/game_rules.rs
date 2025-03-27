@@ -1,15 +1,11 @@
 use crate::config::{
-    self, COLLECTIBLES, CUP_TILES, DANGER_TILES, DOOR_TILE, GAME_TILE_SIZE, GUN_TILE, JETPACK_FUEL,
+    COLLECTIBLES, CUP_TILES, DANGER_TILES, DOOR_TILE, GAME_TILE_SIZE, GUN_TILE, JETPACK_FUEL,
     JETPACK_TILE,
 };
 use crate::game::state::GameState;
 use crate::physics::collisions::CollisionDetector;
 use crate::resources::direction::Direction;
-
-use super::bullet;
-use super::camera::Camera;
-use super::dave::Dave;
-use super::enemy::{self, Enemy};
+use sdl2::rect::Rect;
 
 pub struct GameRules;
 
@@ -47,59 +43,79 @@ impl GameRules {
         for corner in corners {
             let tile_x = (corner.x as f32 / GAME_TILE_SIZE as f32).floor() as u32;
             let tile_y = (corner.y as f32 / GAME_TILE_SIZE as f32).floor() as u32;
+            let tile_rect = Self::get_game_tile_rect(tile_x, tile_y);
+
+            let is_collision = CollisionDetector::check_collision(dave_rect, tile_rect);
+
             let tile = state.level.get_tile(state.camera.x, tile_x, tile_y);
 
-            Self::handle_collectibles(state, tile_x, tile_y, tile);
-            Self::handle_danger_tile(state, tile);
-            Self::handle_gun_pickup(state, tile);
-            Self::handle_jetpack_pickup(state, tile);
-            Self::handle_door_collision(state, tile);
+            Self::handle_collectibles(state, tile_x, tile_y, tile, is_collision);
+            Self::handle_danger_tile(state, tile, is_collision);
+            Self::handle_gun_pickup(state, tile, is_collision);
+            Self::handle_jetpack_pickup(state, tile, is_collision);
+            Self::handle_door_collision(state, tile, is_collision);
         }
     }
 
-    pub fn handle_collectibles(state: &mut GameState, tile_x: u32, tile_y: u32, tile: u8) {
+    pub fn handle_collectibles(
+        state: &mut GameState,
+        tile_x: u32,
+        tile_y: u32,
+        tile: u8,
+        is_collision: bool,
+    ) {
         // todo!("Remove this is_collectible check as it is not required, handled by next if check");
-        // if Self::is_collectible(&tile) {
         // ✅ Then check if we can get collectible points
-        if let Some(points) = COLLECTIBLES.get(&tile) {
-            state.collect(*points);
+        if is_collision {
+            if let Some(points) = COLLECTIBLES.get(&tile) {
+                state.collect(*points);
 
-            // ✅ Remove collectible from level (set tile to 0)
-            state
-                .level
-                .update_tile(state.camera.x, tile_x, tile_y, tile);
+                // ✅ Remove collectible from level (set tile to 0)
+                state
+                    .level
+                    .update_tile(state.camera.x, tile_x, tile_y, tile);
+            }
+
+            // update has trophy if collectible is cup
+            if CUP_TILES.contains(&tile) {
+                state.dave.has_trophy = true;
+            }
         }
-
-        // update has trophy if collectible is cup
-        if CUP_TILES.contains(&tile) {
-            state.dave.has_trophy = true;
-        }
-
-        // }
     }
 
-    pub fn handle_gun_pickup(state: &mut GameState, tile: u8) {
-        if tile == GUN_TILE {
+    pub fn handle_gun_pickup(state: &mut GameState, tile: u8, is_collision: bool) {
+        if is_collision && tile == GUN_TILE {
             state.dave.has_gun = true;
         }
     }
 
-    pub fn handle_jetpack_pickup(state: &mut GameState, tile: u8) {
-        if tile == JETPACK_TILE {
+    pub fn handle_jetpack_pickup(state: &mut GameState, tile: u8, is_collision: bool) {
+        if is_collision && tile == JETPACK_TILE {
             state.dave.is_jetpack_active = true;
             state.dave.jetpack = std::cmp::max(state.dave.jetpack + JETPACK_FUEL, JETPACK_FUEL);
         }
     }
 
-    pub fn handle_danger_tile(state: &mut GameState, tile: u8) {
-        if DANGER_TILES.contains(&tile) {
+    pub fn handle_danger_tile(state: &mut GameState, tile: u8, is_collision: bool) {
+        if DANGER_TILES.contains(&tile) && is_collision {
             state.dave.dead();
         }
     }
 
-    pub fn handle_door_collision(state: &mut GameState, tile: u8) {
-        state.dave.on_door = tile == DOOR_TILE;
-        Self::handle_level_completion(state);
+    pub fn get_game_tile_rect(tile_x: u32, tile_y: u32) -> Rect {
+        Rect::new(
+            (tile_x * GAME_TILE_SIZE) as i32,
+            (tile_y * GAME_TILE_SIZE) as i32,
+            GAME_TILE_SIZE,
+            GAME_TILE_SIZE,
+        )
+    }
+
+    pub fn handle_door_collision(state: &mut GameState, tile: u8, is_collision: bool) {
+        if is_collision {
+            state.dave.on_door = tile == DOOR_TILE;
+            Self::handle_level_completion(state);
+        }
     }
 
     pub fn handle_dave_enemy_collision(state: &mut GameState) {
@@ -178,12 +194,4 @@ impl GameRules {
             .iter_mut()
             .for_each(|enemy| enemy.update_enemy(&state.level, &state.dave, state.camera));
     }
-
-    // TODO
-    // pub fn handle_bullet_solid_collision(enemies: &mut [Enemy]){
-    //     for enemy in enemies.iter_mut(){
-    //         if
-    //     }
-
-    // }
 }

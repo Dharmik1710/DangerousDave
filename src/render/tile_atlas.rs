@@ -181,6 +181,13 @@ impl TileAtlas {
         *TILE_MAP.get(&tile_num).unwrap()
     }
 
+    pub fn get_scaled_rect(tile_num: u8) -> Rect {
+        let mut tile = *TILE_MAP.get(&tile_num).unwrap();
+        tile.set_width(tile.width() * SCALE);
+        tile.set_height(tile.height() * SCALE);
+        tile
+    }
+
     /// ✅ Checks if a tile exists in the map
     pub fn has_tile(tile_num: u8) -> bool {
         TILE_MAP.contains_key(&tile_num)
@@ -206,5 +213,26 @@ impl TileAtlas {
     pub fn get_bullet(direction: Direction) -> Rect {
         let tile_num = 126;
         *TILE_MAP.get(&tile_num).unwrap()
+    }
+
+    pub fn get_digit(digit_index: i32) -> Rect {
+        let tile_id = 148 + digit_index as u8;
+        *TILE_MAP.get(&tile_id).unwrap()
+    }
+
+    pub fn get_dave_face() -> Rect {
+        *TILE_MAP.get(&143).unwrap()
+    }
+
+    pub fn get_score_text() -> Rect {
+        *TILE_MAP.get(&137).unwrap()
+    }
+
+    pub fn get_level_text() -> Rect {
+        *TILE_MAP.get(&136).unwrap()
+    }
+
+    pub fn get_dave_text() -> Rect {
+        *TILE_MAP.get(&135).unwrap()
     }
 }

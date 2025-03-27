@@ -34,7 +34,7 @@ impl Level {
         let total_rows = 10; // Fixed level height
 
         let col_index = tile_x + cam_x;
-        let row_index = tile_y;
+        let row_index = (tile_y as i32 - 1).max(0) as u32;
 
         if col_index >= total_columns || row_index >= total_rows {
             return 0; // Out of bounds, return empty tile
@@ -50,7 +50,7 @@ impl Level {
         let total_rows = 10; // Fixed level height
 
         let col_index = tile_x + cam_x;
-        let row_index = tile_y;
+        let row_index = (tile_y as i32 - 1).max(0) as u32;
 
         // ✅ Bounds check to prevent out-of-bounds access
         if col_index >= total_columns || row_index >= total_rows {
@@ -99,7 +99,12 @@ impl Level {
                 let dest_x = ((col - start_col) * GAME_TILE_SIZE) as i32;
                 let dest_y = (row * GAME_TILE_SIZE) as i32;
 
-                let rect = Rect::new(dest_x, dest_y, GAME_TILE_SIZE, GAME_TILE_SIZE);
+                let rect = Rect::new(
+                    dest_x,
+                    dest_y + GAME_TILE_SIZE as i32,
+                    GAME_TILE_SIZE,
+                    GAME_TILE_SIZE,
+                );
                 visible_tiles.entry(tile_index).or_default().push(rect);
             }
         }

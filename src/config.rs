@@ -25,8 +25,8 @@ pub static DAVE_CHILL_H: u32 = 16 * SCALE;
 // pub static DAVE_JETPACK_W: i32 = 9 * SCALE;
 // pub static DAVE_JETPACK_H: i32 = 16 * SCALE;
 
-pub const DAVE_SPEED: u32 = 2; // 4 pixels per frame
-pub const DAVE_SPEED_X: u32 = 4;
+pub const DAVE_SPEED: u32 = 2 * SCALE; // 4 pixels per frame
+pub const DAVE_SPEED_X: u32 = 2 * SCALE;
 pub static DAVE_JUMP: u32 = 16 * 2 * SCALE;
 pub static DAVE_JUMP_COOLDOWN: u32 = 10; // total
 pub static DAVE_JUMP_UP_COOLDOWN: u32 = 3;
@@ -72,7 +72,7 @@ pub static COLLECTIBLES: LazyLock<HashMap<u8, u32>> = LazyLock::new(|| {
     HashMap::from([
         (47, 100), // Diamond gives 1000 points
         // (49, 2000),
-        // (48, 500),
+        (48, 500),
         (10, 0), // cup
         (11, 0), // cup
         (12, 0), // cup
@@ -86,7 +86,7 @@ pub static COLLECTIBLES: LazyLock<HashMap<u8, u32>> = LazyLock::new(|| {
 pub static DANGER_TILES: LazyLock<HashSet<u8>> = LazyLock::new(|| {
     HashSet::from([
         6, 7, 8, 9, // fire
-        // 25, 26, 27, 28, // pink weed
+        25, 26, 27, 28, // pink weed
         36, 37, 38, 39, 40, // water
     ])
 });

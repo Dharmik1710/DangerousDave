@@ -1,3 +1,4 @@
+use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::render::{Canvas, Texture, TextureCreator};
 use sdl2::video::{Window, WindowContext};
@@ -63,6 +64,7 @@ impl Renderer {
     pub fn render(&mut self, state: &GameState, texture: &Texture) {
         self.canvas.clear();
 
+        self.render_top_row(&state, texture);
         self.render_tiles(&state.level, texture);
         self.render_dave(&state.dave, texture);
         self.render_enemies(&state.enemies, texture, state.camera);
@@ -139,21 +141,104 @@ impl Renderer {
             }
         }
     }
-    // fn render_enemies(enemies: &[Enemy], canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, texture: &Texture) {
-    //     for enemy in enemies {
-    //         let dest_rect = Rect::new(enemy.x, enemy.y, 32, 32);
-    //         if let Err(e) = canvas.copy(texture, None, dest_rect) {
-    //             eprintln!("Failed to render enemy: {}", e);
-    //         }
-    //     }
-    // }
 
-    // fn render_bullets(bullets: &[Bullet], canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, texture: &Texture) {
-    //     for bullet in bullets.iter().filter(|b| b.active) {
-    //         let dest_rect = Rect::new(bullet.x, bullet.y, 10, 10);
-    //         if let Err(e) = canvas.copy(texture, None, dest_rect) {
-    //             eprintln!("Failed to render bullet: {}", e);
-    //         }
-    //     }
-    // }
+    pub fn render_top_row(&mut self, state: &GameState, texture: &Texture) {
+        let base_y = 2 * SCALE as i32;
+        let mut x_offset = 3 * SCALE as i32; // Left padding
+
+        // 🚀 Render "SCORE" label
+        let score_src_rect = TileAtlas::get_score_text();
+        x_offset = self.render_text_tile(texture, score_src_rect, &mut x_offset, base_y);
+
+        // 🎯 Render Score (5 digits)
+        x_offset = self.render_digits(texture, &mut x_offset, state.score, 5, base_y);
+
+        x_offset += 10 * SCALE as i32; // Extra padding
+
+        // 🏆 Render "LEVEL" label
+        let level_src_rect = TileAtlas::get_level_text();
+        x_offset = self.render_text_tile(texture, level_src_rect, &mut x_offset, base_y);
+
+        // 🔢 Render Level (2 digits)
+        x_offset = self.render_digits(
+            texture,
+            &mut x_offset,
+            state.current_level as u32,
+            2,
+            base_y,
+        );
+
+        x_offset += 10 * SCALE as i32; // Extra padding
+
+        // ❤️ Render "DAVES" label
+        let dave_src_rect = TileAtlas::get_dave_text();
+        x_offset = self.render_text_tile(texture, dave_src_rect, &mut x_offset, base_y);
+
+        // 😀 Render Lives (Dave Faces)
+        self.render_lives(texture, &mut x_offset, state.lives, base_y);
+    }
+
+    fn render_text_tile(
+        &mut self,
+        texture: &Texture,
+        src_rect: Rect,
+        x_offset: &mut i32,
+        base_y: i32,
+    ) -> i32 {
+        let dest_rect = Rect::new(
+            *x_offset,
+            base_y,
+            src_rect.width() * SCALE,
+            src_rect.height() * SCALE,
+        );
+        self.canvas.copy(texture, src_rect, dest_rect).ok();
+        *x_offset += (src_rect.width() as i32 + 1) * SCALE as i32; // Update x_offset
+        *x_offset
+    }
+
+    fn render_digits(
+        &mut self,
+        texture: &Texture,
+        x_offset: &mut i32,
+        value: u32,
+        digits: usize,
+        base_y: i32,
+    ) -> i32 {
+        let formatted_value = format!("{:0width$}", value, width = digits);
+
+        for digit in formatted_value.chars() {
+            let digit_index = digit.to_digit(10).unwrap() as i32;
+            let src_rect = TileAtlas::get_digit(digit_index);
+            let dest_rect = Rect::new(
+                *x_offset,
+                base_y,
+                src_rect.width() * SCALE,
+                src_rect.height() * SCALE,
+            );
+            self.canvas.copy(texture, src_rect, dest_rect).ok();
+            *x_offset += src_rect.width() as i32 * SCALE as i32;
+        }
+        *x_offset
+    }
+
+    fn render_lives(
+        &mut self,
+        texture: &Texture,
+        x_offset: &mut i32,
+        lives: u32,
+        base_y: i32,
+    ) -> i32 {
+        for _ in 0..lives {
+            let src_rect = TileAtlas::get_dave_face();
+            let dest_rect = Rect::new(
+                *x_offset,
+                base_y,
+                src_rect.width() * SCALE,
+                src_rect.height() * SCALE,
+            );
+            self.canvas.copy(texture, src_rect, dest_rect).ok();
+            *x_offset += (src_rect.width()) as i32 * SCALE as i32;
+        }
+        *x_offset
+    }
 }

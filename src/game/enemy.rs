@@ -36,7 +36,7 @@ impl Enemy {
         let can_shoot = SHOOTING_ENEMIES.contains(&tile);
         Self {
             px: x * GAME_TILE_SIZE,
-            py: y * GAME_TILE_SIZE,
+            py: (y + 1) * GAME_TILE_SIZE, // +1 because of top row on screen
             path_index: 0,
             dead_timer: DEAD_TIMER,
             cooldown: ENEMY_COOLDOWN,

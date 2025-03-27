@@ -46,7 +46,11 @@ impl CollisionDetector {
                     GAME_TILE_SIZE,
                     GAME_TILE_SIZE,
                 );
-                if rect.has_intersection(tile_rect) {
+                // if rect.has_intersection(tile_rect) {
+                //     return true; // 🚨 Collision detected!
+                // }
+                // 🔥 Use strict overlap condition instead of `has_intersection()`
+                if Self::is_strict_overlap(rect, tile_rect) {
                     return true; // 🚨 Collision detected!
                 }
             }
@@ -69,10 +73,17 @@ impl CollisionDetector {
         }
     }
 
+    fn is_strict_overlap(rect1: Rect, rect2: Rect) -> bool {
+        rect1.x < rect2.x + rect2.width() as i32
+            && rect1.x + rect1.width() as i32 > rect2.x
+            && rect1.y < rect2.y + rect2.height() as i32
+            && rect1.y + rect1.height() as i32 > rect2.y
+    }
+
     /// ✅ Check collision with Dave
     pub fn check_collision(rect1: Rect, rect2: Rect) -> bool {
         // check for enemy tile collision
-        if rect1.has_intersection(rect2) {
+        if Self::is_strict_overlap(rect1, rect2) {
             return true;
         }
         false
