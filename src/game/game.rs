@@ -16,6 +16,6 @@ impl Game {
 
     pub fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         println!("Starting Dangerous Dave...");
-        GameLoop::start(&mut self.state, &mut self.sdl_cxt)
+        GameLoop::start(&mut self.state, &self.sdl_cxt)
     }
 }

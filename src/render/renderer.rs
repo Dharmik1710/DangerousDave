@@ -8,13 +8,12 @@ use super::tile_atlas::TileAtlas;
 use crate::config::{
     DAVE_CHILL_H, DAVE_CHILL_W, DEAD_TILE, GAME_TILE_SIZE, SCALE, SCREEN_HEIGHT, SCREEN_WIDTH,
 };
-use crate::game::bullet;
-use crate::game::camera::Camera;
-use crate::game::dave::Dave;
-use crate::game::enemy::{self, Enemy};
 use crate::game::level::Level;
 use crate::game::state::GameState;
+use crate::resources::camera::Camera;
+use crate::resources::dave::Dave;
 use crate::resources::direction::Direction;
+use crate::resources::enemy::Enemy;
 
 pub struct Renderer {
     pub canvas: Canvas<Window>,
@@ -53,14 +52,6 @@ impl Renderer {
         Ok(Self { canvas })
     }
 
-    // /// ✅ Corrected `load_texture()` to properly assign texture
-    // pub fn load_texture(&mut self, texture: &Texture) -> Result<(), String> {
-    //     let texture_creator = &self.texture_creator;
-    //     let texture = texture_creator.load_texture("assets/dangerous_dave_game_resources.bmp")?;
-    //     self.texture = Some(texture); // ✅ Wrap in Some()
-    //     Ok(())
-    // }
-
     pub fn render(&mut self, state: &GameState, texture: &Texture) {
         self.canvas.clear();
 
@@ -69,8 +60,10 @@ impl Renderer {
         self.render_dave(&state.dave, texture);
         self.render_enemies(&state.enemies, texture, state.camera);
 
-        // Self::render_enemies(&state.enemies, canvas, texture);
-        // Self::render_bullets(&state.bullets, canvas, texture);
+        // TODO - render bottom row
+        //  - jetpack puel
+        //  - instructions - Go through the door
+        //  - Gun if have gun
 
         self.canvas.present();
     }
@@ -151,20 +144,20 @@ impl Renderer {
         let base_y = 2 * SCALE as i32;
         let mut x_offset = 3 * SCALE as i32; // Left padding
 
-        // 🚀 Render "SCORE" label
+        // Render "SCORE" label
         let score_src_rect = TileAtlas::get_score_text();
         x_offset = self.render_text_tile(texture, score_src_rect, &mut x_offset, base_y);
 
-        // 🎯 Render Score (5 digits)
+        // Render Score (5 digits)
         x_offset = self.render_digits(texture, &mut x_offset, state.score, 5, base_y);
 
         x_offset += 10 * SCALE as i32; // Extra padding
 
-        // 🏆 Render "LEVEL" label
+        // Render "LEVEL" label
         let level_src_rect = TileAtlas::get_level_text();
         x_offset = self.render_text_tile(texture, level_src_rect, &mut x_offset, base_y);
 
-        // 🔢 Render Level (2 digits)
+        // Render Level (2 digits)
         x_offset = self.render_digits(
             texture,
             &mut x_offset,
@@ -175,11 +168,11 @@ impl Renderer {
 
         x_offset += 10 * SCALE as i32; // Extra padding
 
-        // ❤️ Render "DAVES" label
+        // Render "DAVES" label
         let dave_src_rect = TileAtlas::get_dave_text();
         x_offset = self.render_text_tile(texture, dave_src_rect, &mut x_offset, base_y);
 
-        // 😀 Render Lives (Dave Faces)
+        // Render Lives (Dave Faces)
         self.render_lives(texture, &mut x_offset, state.lives, base_y);
     }
 

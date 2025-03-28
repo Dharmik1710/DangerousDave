@@ -7,35 +7,9 @@ use crate::physics::collisions::CollisionDetector;
 use crate::resources::direction::Direction;
 use sdl2::rect::Rect;
 
-pub struct GameRules;
+pub struct GameUtils;
 
-impl GameRules {
-    /// ✅ Applies game rules (exit door, hazards, win/lose conditions)
-    pub fn apply_rules(state: &mut GameState) {
-        // update dave bullet
-        Self::update_dave_bullet(state);
-
-        // update enemy and shoot bullets(if can_shoot)
-        Self::update_enemy(state);
-
-        // handle tile interactions
-        // 1. collectibles
-        // 2. Danger tiles
-        // 3. door collisions
-        Self::handle_tile_interactions(state);
-
-        // handle dave or its bullets collides with enemy or its bullet, dave dies
-        Self::handle_dave_enemy_collision(state);
-        // TODO: check if bullet collides with solid tiles
-        // Self::handle_bullet_solid_collision(state.enemies);
-
-        // if dead amd dead timer greater than 0
-        Self::handle_dave_dead(state);
-
-        // // check if level is complete
-        // Self::handle_level_completion(state);
-    }
-
+impl GameUtils {
     pub fn handle_tile_interactions(state: &mut GameState) {
         let dave_rect = state.dave.get_rect(Direction::Chill);
         let corners = CollisionDetector::get_corners(dave_rect, Direction::Chill);
@@ -64,13 +38,12 @@ impl GameRules {
         tile: u8,
         is_collision: bool,
     ) {
-        // todo!("Remove this is_collectible check as it is not required, handled by next if check");
-        // ✅ Then check if we can get collectible points
+        // Check if we can get collectible points
         if is_collision {
             if let Some(points) = COLLECTIBLES.get(&tile) {
                 state.collect(*points);
 
-                // ✅ Remove collectible from level (set tile to 0)
+                // Remove collectible from level (set tile to 0)
                 state
                     .level
                     .update_tile(state.camera.x, tile_x, tile_y, tile);

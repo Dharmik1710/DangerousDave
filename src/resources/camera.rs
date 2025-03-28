@@ -1,10 +1,9 @@
 use std::cmp;
 
-use crate::config::{
-    DAVE_CHILL_W, GAME_TILE_SIZE, SCALE, SCROLL_THRESHOLD, TOTAL_VIEWPORT_TILES_X,
+use crate::{
+    config::{DAVE_CHILL_W, GAME_TILE_SIZE, SCROLL_THRESHOLD, TOTAL_VIEWPORT_TILES_X},
+    game::state::GameState,
 };
-
-use super::state::GameState;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Camera {
@@ -98,12 +97,4 @@ impl Camera {
         }
         self.left_boundary = SCROLL_THRESHOLD * GAME_TILE_SIZE;
     }
-
-    // pub fn left_boundary(&self) -> i32 {
-    //     self.left_boundary
-    // }
-
-    // pub fn right_boundary(&self) -> i32 {
-    //     self.right_boundary
-    // }
 }

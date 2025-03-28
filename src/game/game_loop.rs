@@ -5,7 +5,6 @@ use std::time::{Duration, Instant};
 use crate::game::game_manager::GameManager;
 use crate::game::state::GameState;
 use crate::input::input_handler::InputHandler;
-use crate::physics::physics::PhysicsEngine;
 use crate::render::renderer::Renderer;
 
 const FRAME_TIME_MS: u64 = 1000 / 30; // 30 FPS → 33ms per frame

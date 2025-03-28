@@ -33,9 +33,7 @@ impl InputHandler {
             self.update_game_key_state(event);
         }
 
-        return quit;
-
-        // (events, quit)
+        quit
     }
 
     fn update_game_key_state(&mut self, event: &Event) {

@@ -1,10 +1,5 @@
 use crate::{
-    config::{self, DAVE_JUMP_UP_COOLDOWN, DAVE_SPEED},
-    game::{
-        dave::{self, Dave},
-        state::{self, GameState},
-    },
-    resources::direction::Direction,
+    config::DAVE_JUMP_UP_COOLDOWN, game::state::GameState, resources::direction::Direction,
 };
 
 use super::collisions::CollisionDetector;

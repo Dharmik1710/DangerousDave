@@ -52,6 +52,7 @@ impl PlayerController {
         state.dave.set_idle(is_idle);
     }
 
+    // movement for jetpack
     fn handle_elevated_movement(state: &mut GameState, input: &InputHandler) {
         if input.is_key_pressed(Keycode::A) || input.is_key_pressed(Keycode::Left) {
             let rect = state.dave.get_rect(Direction::Left);

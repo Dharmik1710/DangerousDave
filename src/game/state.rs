@@ -1,7 +1,5 @@
-use super::camera::{self, Camera};
-use super::dave::Dave;
-use super::enemy::Enemy;
-use super::level::{self, Level};
+use super::level::Level;
+use crate::resources::{camera::Camera, dave::Dave, enemy::Enemy};
 use std::vec;
 
 #[derive(Debug, Clone)]

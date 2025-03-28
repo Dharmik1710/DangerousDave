@@ -3,17 +3,10 @@ pub mod config;
 
 // Core game components
 pub mod game {
-    pub mod actions;
-    pub mod bullet;
-    pub mod camera;
-    pub mod collectibles;
-    pub mod dave;
-    pub mod enemy;
     pub mod game;
     pub mod game_loop;
     pub mod game_manager;
-    pub mod game_rules;
-    pub mod init;
+    pub mod game_utils;
     // pub mod game_rules;
     pub mod level;
     pub mod state;
@@ -22,7 +15,6 @@ pub mod game {
 // Input Handling
 pub mod input {
     pub mod input_handler;
-    pub mod keyboard;
     pub mod player_controller;
 }
 
@@ -35,21 +27,17 @@ pub mod physics {
 
 // Rendering System
 pub mod render {
-    pub mod render_utils;
     pub mod renderer;
     pub mod tile_atlas;
 }
 
 // Resource Management
 pub mod resources {
+    pub mod bullet;
+    pub mod camera;
+    pub mod dave;
     pub mod direction;
-}
-
-// Utility Functions
-pub mod utils {
-    pub mod file;
-    pub mod logger;
-    pub mod math;
+    pub mod enemy;
 }
 
 // Animations module

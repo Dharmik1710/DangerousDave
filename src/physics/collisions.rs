@@ -1,44 +1,31 @@
-use std::cmp;
-use std::i32::MAX;
-
-use sdl2::rect::{Point, Rect};
-
-use crate::config::{
-    self, COLLECTIBLES, DANGER_TILES, DAVE_CHILL_H, DAVE_CHILL_W, DAVE_SPEED, DAVE_SPEED_X,
-    DOOR_TILE, GAME_TILE_SIZE, SCALE, SOLID_TILES,
-};
-use crate::game::bullet::{self, Bullet};
-use crate::game::camera::{self, Camera};
-use crate::game::collectibles::CollectibleManager;
-use crate::game::dave::{self, Dave};
-use crate::game::enemy::{self, Enemy};
+use crate::config::{COLLECTIBLES, GAME_TILE_SIZE, SOLID_TILES};
 use crate::game::level::Level;
-use crate::game::state::GameState;
-use crate::render::tile_atlas::TileAtlas;
-use crate::resources::direction::{self, Direction};
+use crate::resources::camera::Camera;
+use crate::resources::direction::Direction;
+use sdl2::rect::{Point, Rect};
 
 pub struct CollisionDetector;
 
 impl CollisionDetector {
-    /// ✅ Checks if any corner of `dave_rect` collides with a solid tile
+    /// Checks if any corner of rect collides with a solid tile
     pub fn check_solid_tile_collision(
         level: &Level,
         camera: Camera,
         rect: Rect,
         direction: Direction,
     ) -> bool {
-        // ✅ Extract all four corners
+        // Extract all relevant corners
         let corners = Self::get_corners(rect, direction);
 
         for corner in &corners {
-            // ✅ Convert pixel coordinates to tile index (floor division)
+            // Convert pixel coordinates to tile index (floor division)
             let tile_x = (corner.x as f32 / GAME_TILE_SIZE as f32).floor() as u32;
             let tile_y = (corner.y as f32 / GAME_TILE_SIZE as f32).floor() as u32;
 
-            // ✅ Retrieve the tile rectangle from TileAtlas
+            // Retrieve the tile rectangle from TileAtlas
             let tile = level.get_tile(camera.x, tile_x, tile_y);
 
-            // ✅ Check for intersection with Dave’s rectangle
+            // Check for intersection with Dave’s rectangle
             if Self::is_solid(tile) {
                 let tile_rect = Rect::new(
                     (tile_x * GAME_TILE_SIZE) as i32,
@@ -46,12 +33,9 @@ impl CollisionDetector {
                     GAME_TILE_SIZE,
                     GAME_TILE_SIZE,
                 );
-                // if rect.has_intersection(tile_rect) {
-                //     return true; // 🚨 Collision detected!
-                // }
-                // 🔥 Use strict overlap condition instead of `has_intersection()`
+                // Use strict overlap condition instead of `has_intersection()`
                 if Self::is_strict_overlap(rect, tile_rect) {
-                    return true; // 🚨 Collision detected!
+                    return true; // Collision detected!
                 }
             }
         }
@@ -80,7 +64,7 @@ impl CollisionDetector {
             && rect1.y + rect1.height() as i32 > rect2.y
     }
 
-    /// ✅ Check collision with Dave
+    /// Check collision in general, given two rects
     pub fn check_collision(rect1: Rect, rect2: Rect) -> bool {
         // check for enemy tile collision
         if Self::is_strict_overlap(rect1, rect2) {

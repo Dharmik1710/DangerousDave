@@ -5,18 +5,13 @@ use crate::{
         BULLET_COOLDOWN, DEAD_TIMER, ENEMY_BULLET_TILE, ENEMY_COOLDOWN, GAME_TILE_SIZE, SCALE,
         SHOOTING_ENEMIES, TOTAL_VIEWPORT_TILES_X,
     },
+    game::level::Level,
     physics::collisions::CollisionDetector,
     render::tile_atlas::TileAtlas,
     resources::direction::Direction,
 };
 
-use super::{
-    bullet::{self, Bullet},
-    camera::Camera,
-    dave::Dave,
-    level::Level,
-    state::{self, GameState},
-};
+use super::{bullet::Bullet, camera::Camera, dave::Dave};
 
 #[derive(Debug, Clone, Default)]
 pub struct Enemy {
@@ -94,7 +89,7 @@ impl Enemy {
         }
     }
 
-    /// ✅ Moves the enemy (Patrolling, AI, etc.)
+    /// Moves the enemy irrespective of on or off screen
     pub fn update_enemy(&mut self, level: &Level, dave: &Dave, camera: Camera) {
         if self.is_alive {
             // check the cooldown, decrement it if not 0
@@ -103,7 +98,7 @@ impl Enemy {
                 return;
             }
 
-            // ✅ Extract delta x and y
+            // Extract delta x and y
             let (dx, dy) = level.path[self.path_index as usize];
 
             self.px = (self.px as i32 + (dx as i32) * (SCALE as i32)).max(0) as u32;
@@ -180,6 +175,7 @@ impl Enemy {
         self.is_alive = false;
     }
 
+    // get enemy rect
     pub fn get_rect(&self, camera: Camera) -> Rect {
         let px = self.px as i32 - (camera.x * GAME_TILE_SIZE) as i32;
         let py = self.py as i32;

@@ -3,9 +3,8 @@ use std::collections::HashMap;
 use std::sync::LazyLock;
 
 use crate::{
-    config::{CUP_TILES, DAVE_DEFAULT_TILE, SCALE},
-    game::dave::Dave,
-    resources::direction::{self, Direction},
+    config::{DAVE_DEFAULT_TILE, SCALE},
+    resources::{dave::Dave, direction::Direction},
 };
 
 pub static TILE_MAP: LazyLock<HashMap<u8, Rect>> = LazyLock::new(|| {
@@ -221,11 +220,13 @@ impl TileAtlas {
         *TILE_MAP.get(&tile_num).unwrap()
     }
 
+    // return digit from 0-9
     pub fn get_digit(digit_index: i32) -> Rect {
         let tile_id = 148 + digit_index as u8;
         *TILE_MAP.get(&tile_id).unwrap()
     }
 
+    // get dave face for lives
     pub fn get_dave_face() -> Rect {
         *TILE_MAP.get(&143).unwrap()
     }

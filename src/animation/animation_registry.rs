@@ -7,8 +7,8 @@ impl AnimationRegistry {
     pub fn initialize_dave_animations() -> HashMap<AnimationState, Animation> {
         [
             (AnimationState::Idle, Animation::new(vec![56], 10)),
-            (AnimationState::IdleRight, Animation::new(vec![54], 10)),
-            (AnimationState::IdleLeft, Animation::new(vec![58], 10)),
+            (AnimationState::IdleRight, Animation::new(vec![54], 5)),
+            (AnimationState::IdleLeft, Animation::new(vec![58], 5)),
             (
                 AnimationState::RunningRight,
                 Animation::new(vec![53, 54, 55], 3),
@@ -33,10 +33,10 @@ impl AnimationRegistry {
             ),
             (
                 AnimationState::Dying,
-                Animation::new(vec![129, 130, 131, 132], 10),
+                Animation::new(vec![129, 130, 131, 132], 3),
             ),
         ]
         .into_iter()
-        .collect() // ✅ Converts Vec<(Key, Value)> into HashMap<Key, Value>
+        .collect() // Converts Vec<(Key, Value)> into HashMap<Key, Value>
     }
 }

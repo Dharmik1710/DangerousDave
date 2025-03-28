@@ -1,23 +1,19 @@
 use std::collections::HashMap;
 
-use super::{
-    bullet::Bullet,
-    camera::{self, Camera},
-    init::Initialize,
-    level::{self, Level},
-    state::GameState,
-};
+use super::{bullet::Bullet, camera::Camera};
 use crate::{
     animation::{
         animation::{Animation, AnimationState},
         animation_registry::AnimationRegistry,
     },
     config::{
-        self, DAVE_BULLET_TILE, DAVE_CHILL_H, DAVE_CHILL_W, DAVE_DEFAULT_TILE, DAVE_JUMP,
-        DAVE_JUMP_COOLDOWN, DAVE_SPEED, DAVE_SPEED_X, DEAD_TIMER, GAME_TILE_SIZE, JETPACK_FUEL,
+        DAVE_BULLET_TILE, DAVE_CHILL_H, DAVE_CHILL_W, DAVE_DEFAULT_TILE, DAVE_JUMP,
+        DAVE_JUMP_COOLDOWN, DAVE_SPEED, DAVE_SPEED_X, DEAD_TIMER, GAME_TILE_SIZE, SCALE,
     },
+    game::level::Level,
     physics::collisions::CollisionDetector,
-    resources::direction::{self, Direction},
+    render::tile_atlas::TileAtlas,
+    resources::direction::Direction,
 };
 use sdl2::rect::Rect;
 
@@ -95,7 +91,25 @@ impl Dave {
             self.on_door = false;
             self.animations = AnimationRegistry::initialize_dave_animations();
             self.current_animation = AnimationState::default();
+            self.idle = true;
         }
+    }
+
+    pub fn get_dave_init_pos(level_num: u8) -> (u32, u32) {
+        let dave_init_pos = match level_num {
+            1 => (2, 8),
+            2 => (1, 8),
+            3 => (2, 5),
+            4 => (1, 5),
+            5 => (2, 8),
+            6 => (2, 8),
+            7 => (1, 2),
+            8 => (2, 8),
+            9 => (6, 1),
+            10 => (2, 8),
+            _ => (0, 0), // Default fallback
+        };
+        return dave_init_pos;
     }
 
     pub fn move_left(&mut self) {
@@ -125,6 +139,7 @@ impl Dave {
 
     pub fn dead(&mut self) {
         self.is_alive = false;
+        self.set_animation();
     }
 
     pub fn move_up(&mut self) {
@@ -161,8 +176,7 @@ impl Dave {
     pub fn shoot(&mut self) {
         // shoot only when all of these are true
         //  - bullet is not active
-        //  - the enemy is on screen
-        //  - enemy can shoot
+        //  - when ctrl key is pressed
         if self.has_gun && !self.bullet.is_active {
             self.bullet
                 .fire(self.px as i32, self.py as i32, self.direction, self.tile);
@@ -177,7 +191,7 @@ impl Dave {
     }
 
     pub fn init_dave_position(&mut self, level_num: u8) {
-        let dave_init_position = Initialize::get_dave_init_pos(level_num);
+        let dave_init_position = Self::get_dave_init_pos(level_num);
         self.px = dave_init_position.0 * GAME_TILE_SIZE;
         self.py = (dave_init_position.1 + 1) * GAME_TILE_SIZE;
     }
@@ -187,7 +201,6 @@ impl Dave {
             return AnimationState::Dying;
         }
 
-        // let mut animation_state = AnimationState::Idle;
         // when jetpack is active
         if self.is_jetpack_active && self.jetpack > 0 {
             if self.direction.is_left() {
@@ -206,6 +219,7 @@ impl Dave {
             }
         }
 
+        // if not doing anything
         if self.idle {
             if self.direction.is_left() {
                 return AnimationState::IdleLeft;
@@ -252,6 +266,9 @@ impl Dave {
     }
 
     pub fn get_rect(&self, direction: Direction) -> Rect {
+        // let dave_rect = TileAtlas::get_animation_tile(self);
+        // let hitbox_w = dave_rect.width() * SCALE;
+        // let hitbox_h = dave_rect.height() * SCALE;
         let hitbox_w = DAVE_CHILL_W;
         let hitbox_h = DAVE_CHILL_H;
 
@@ -259,7 +276,7 @@ impl Dave {
         match direction {
             Direction::Up => Rect::new(
                 self.px as i32,
-                (self.py - DAVE_SPEED) as i32,
+                self.py.saturating_sub(DAVE_SPEED) as i32,
                 hitbox_w,
                 hitbox_h,
             ),
@@ -270,7 +287,7 @@ impl Dave {
                 hitbox_h,
             ),
             Direction::Left => Rect::new(
-                (self.px - DAVE_SPEED_X) as i32,
+                self.px.saturating_sub(DAVE_SPEED_X) as i32,
                 self.py as i32,
                 hitbox_w,
                 hitbox_h,
