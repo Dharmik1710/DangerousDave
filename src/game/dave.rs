@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use super::{
     bullet::Bullet,
     camera::{self, Camera},
@@ -6,6 +8,10 @@ use super::{
     state::GameState,
 };
 use crate::{
+    animation::{
+        animation::{Animation, AnimationState},
+        animation_registry::AnimationRegistry,
+    },
     config::{
         self, DAVE_BULLET_TILE, DAVE_CHILL_H, DAVE_CHILL_W, DAVE_DEFAULT_TILE, DAVE_JUMP,
         DAVE_JUMP_COOLDOWN, DAVE_SPEED, DAVE_SPEED_X, DEAD_TIMER, GAME_TILE_SIZE, JETPACK_FUEL,
@@ -40,6 +46,9 @@ pub struct Dave {
     pub has_trophy: bool,
     pub has_gun: bool,
     pub on_door: bool,
+    pub current_animation: AnimationState,
+    pub animations: HashMap<AnimationState, Animation>, // Stores all animations - jumping, running, climbing etc.
+    pub idle: bool,
 }
 
 impl Default for Dave {
@@ -60,6 +69,9 @@ impl Default for Dave {
             has_trophy: false,
             has_gun: false,
             on_door: false,
+            animations: AnimationRegistry::initialize_dave_animations(),
+            current_animation: AnimationState::default(),
+            idle: true,
         }
     }
 }
@@ -81,13 +93,15 @@ impl Dave {
             self.bullet.deactivate();
             self.is_jetpack_active = false;
             self.on_door = false;
+            self.animations = AnimationRegistry::initialize_dave_animations();
+            self.current_animation = AnimationState::default();
         }
     }
 
     pub fn move_left(&mut self) {
         if self.is_alive {
             self.direction = Direction::Left;
-            self.px -= DAVE_SPEED_X;
+            self.px = self.px.saturating_sub(DAVE_SPEED_X);
         }
     }
 
@@ -98,15 +112,14 @@ impl Dave {
         }
     }
 
+    pub fn set_idle(&mut self, is_idle: bool) {
+        self.idle = is_idle;
+    }
+
     pub fn jump(&mut self) {
         if self.on_ground && self.jump == 0 {
-            if self.jump_cooldown != 0 {
-                self.decr_cooldown();
-                return;
-            }
             self.jump = DAVE_JUMP; // Set jump height
             self.on_ground = false; // Dave is no longer on the ground
-            self.jump_cooldown = DAVE_JUMP_COOLDOWN;
         }
     }
 
@@ -159,6 +172,7 @@ impl Dave {
     pub fn toggle_jetpack(&mut self) {
         if self.jetpack > 0 {
             self.is_jetpack_active = !self.is_jetpack_active;
+            self.set_animation();
         }
     }
 
@@ -166,6 +180,70 @@ impl Dave {
         let dave_init_position = Initialize::get_dave_init_pos(level_num);
         self.px = dave_init_position.0 * GAME_TILE_SIZE;
         self.py = (dave_init_position.1 + 1) * GAME_TILE_SIZE;
+    }
+
+    pub fn get_animation_state(&mut self) -> AnimationState {
+        if !self.is_alive {
+            return AnimationState::Dying;
+        }
+
+        // let mut animation_state = AnimationState::Idle;
+        // when jetpack is active
+        if self.is_jetpack_active && self.jetpack > 0 {
+            if self.direction.is_left() {
+                return AnimationState::JetpackingLeft;
+            } else {
+                return AnimationState::JetpackingRight;
+            }
+        }
+
+        // in air while jumping up
+        if !self.on_ground || self.jump > 0 {
+            if self.direction.is_left() {
+                return AnimationState::JumpingLeft;
+            } else {
+                return AnimationState::JumpingRight;
+            }
+        }
+
+        if self.idle {
+            if self.direction.is_left() {
+                return AnimationState::IdleLeft;
+            } else if self.direction.is_right() {
+                return AnimationState::IdleRight;
+            } else {
+                return AnimationState::Idle;
+            }
+        }
+
+        // on ground, movement in left or right direction
+        if self.on_ground && self.jump == 0 {
+            if self.direction.is_left() {
+                return AnimationState::RunningLeft;
+            } else {
+                return AnimationState::RunningRight;
+            }
+        }
+        AnimationState::Idle
+    }
+
+    pub fn set_animation(&mut self) {
+        let animation_state = self.get_animation_state();
+        if self.current_animation != animation_state {
+            self.current_animation = animation_state;
+            self.animations
+                .get_mut(&animation_state)
+                .unwrap()
+                .reset_frame_timer(); // Reset frame timer
+        }
+    }
+
+    pub fn update_animation(&mut self) {
+        self.set_animation();
+        self.animations
+            .get_mut(&self.current_animation)
+            .unwrap()
+            .update();
     }
 
     pub fn update_position(&mut self, x_shift: i32) {
