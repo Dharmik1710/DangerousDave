@@ -66,40 +66,36 @@ Here's how things are organized:
 ```
 src
 ├── animation
-│   ├── animation.rs
-│   └── animation_registry.rs
-├── audio
-├── config.rs
+│   ├── animation.rs             # Handles animation logic, frame timing, and transitions.
+│   └── animation_registry.rs    # Stores and manages animation states for different entities.
+├── audio                        # (Placeholder) Handles game sounds & music.
+├── config.rs                    # Stores all game constants and configuration values.
 ├── game
-│   ├── actions.rs
-│   ├── bullet.rs
-│   ├── camera.rs
-│   ├── collectibles.rs
-│   ├── dave.rs
-│   ├── enemy.rs
-│   ├── game.rs
-│   ├── game_loop.rs
-│   ├── game_manager.rs
-│   ├── game_rules.rs
-│   ├── init.rs
-│   ├── level.rs
-│   └── state.rs
+│   ├── game.rs                  # Main game logic, initialization, and flow management.
+│   ├── game_loop.rs             # Core game loop, updates state, handles physics & rendering.
+│   ├── game_manager.rs          # Manages game rules, events, and interactions.
+│   ├── game_utils.rs            # Utility functions for general game mechanics.
+│   ├── level.rs                 # Loads, processes, and manages game levels.
+│   └── state.rs                 # Stores game state (score, lives, level data, etc.).
 ├── input
-│   ├── input_handler.rs
-│   ├── keyboard.rs
-│   └── player_controller.rs
-├── lib.rs
-├── main.rs
+│   ├── input_handler.rs         # Handles user input, key events, and input tracking.
+│   └── player_controller.rs     # Maps inputs to player actions like movement, shooting, jumping.
+├── lib.rs                       # Rust library entry point (if used as a library).
+├── main.rs                      # Entry point of the game, starts execution.
 ├── physics
-│   ├── collisions.rs
-│   ├── gravity.rs
-│   └── physics.rs
+│   ├── collisions.rs            # Handles collision detection between entities and objects.
+│   ├── gravity.rs               # Simulates gravity and jump mechanics for Dave.
+│   └── physics.rs               # Manages overall physics engine (gravity, movement, forces).
 ├── render
-│   ├── render_utils.rs
-│   ├── renderer.rs
-│   └── tile_atlas.rs
-├── resources
-│   └── direction.rs
+│   ├── renderer.rs              # Handles rendering logic, drawing sprites to the screen.
+│   └── tile_atlas.rs            # Maps tile IDs to textures for rendering.
+└── resources
+    ├── bullet.rs                # Bullet mechanics (firing, movement, collisions).
+    ├── camera.rs                # Camera system, follows player and updates view.
+    ├── dave.rs                  # Main player character (Dave) logic, movement, and state.
+    ├── direction.rs             # Defines movement directions (left, right, up, down).
+    └── enemy.rs                 # Enemy behavior, movement, and attack logic.
+
 ```
 
 ---
