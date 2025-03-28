@@ -10,7 +10,7 @@ pub static TOTAL_VIEWPORT_TILES_X: LazyLock<u32> =
     LazyLock::new(|| (SCREEN_WIDTH as f32 / GAME_TILE_SIZE as f32).floor() as u32);
 
 // Camera related
-pub static SCROLL_THRESHOLD: u32 = 2;
+pub static SCROLL_THRESHOLD: u32 = 3;
 
 // DAVE config
 // pub static DAVE_WIDTH_BASE: i32 = 20 * SCALE as i32;
@@ -27,6 +27,7 @@ pub static DAVE_CHILL_H: u32 = 16 * SCALE;
 
 pub const DAVE_SPEED: u32 = 2 * SCALE; // 4 pixels per frame
 pub const DAVE_SPEED_X: u32 = 8;
+pub const DAVE_SPEED_X: u32 = 8;
 pub static DAVE_JUMP: u32 = 16 * 2 * SCALE;
 pub static DAVE_JUMP_COOLDOWN: u32 = 4; // total
 pub static DAVE_JUMP_UP_COOLDOWN: u32 = 0;
@@ -39,7 +40,8 @@ pub static DOOR_TILE: u8 = 2;
 pub static DAVE_BULLET_TILE: u8 = 127;
 pub static ENEMY_BULLET_TILE: u8 = 124;
 
-pub static ENEMY_COOLDOWN: u8 = 2;
+pub static BULLET_COOLDOWN: u8 = 1;
+pub static ENEMY_COOLDOWN: u8 = 1;
 
 pub static BULLET_SPEED: i32 = 5 * SCALE as i32;
 
