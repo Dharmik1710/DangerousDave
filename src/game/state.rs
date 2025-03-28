@@ -20,7 +20,7 @@ pub struct GameState {
 impl Default for GameState {
     fn default() -> Self {
         Self {
-            current_level: 3,
+            current_level: 1,
             score: 0,
             lives: 3,
             camera: Camera::default(),
