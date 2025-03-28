@@ -66,34 +66,34 @@ Here's how things are organized:
 ```
 src
 ├── animation
-│   ├── animation.rs             # Handles animation logic, frame timing, and transitions.
-│   └── animation_registry.rs    # Stores and manages animation states for different entities.
-├── audio                        # (Placeholder) Handles game sounds & music.
-├── config.rs                    # Stores all game constants and configuration values.
+│   ├── animation.rs             # Handles animation
+│   └── animation_registry.rs    # Initial animation states for different entities - dave, enemies, bullet, fire etc.
+├── audio                        # (TODO) Handles game sounds & music.
+├── config.rs                    # Game constants and configuration values.
 ├── game
-│   ├── game.rs                  # Main game logic, initialization, and flow management.
-│   ├── game_loop.rs             # Core game loop, updates state, handles physics & rendering.
-│   ├── game_manager.rs          # Manages game rules, events, and interactions.
-│   ├── game_utils.rs            # Utility functions for general game mechanics.
+│   ├── game.rs                  # Main game logic and initialization.
+│   ├── game_loop.rs             # Core game loop - level init, input handling, state update and rendering
+│   ├── game_manager.rs          # State updates
+│   ├── game_utils.rs            # helper fun to game_manager.rs
 │   ├── level.rs                 # Loads, processes, and manages game levels.
-│   └── state.rs                 # Stores game state (score, lives, level data, etc.).
+│   └── state.rs                 # Stores game state (score, lives, level data, dave, enemies, etc.).
 ├── input
-│   ├── input_handler.rs         # Handles user input, key events, and input tracking.
+│   ├── input_handler.rs         # Handles raw user input
 │   └── player_controller.rs     # Maps inputs to player actions like movement, shooting, jumping.
-├── lib.rs                       # Rust library entry point (if used as a library).
+├── lib.rs                       # Rust library entry point - single declarations for modules
 ├── main.rs                      # Entry point of the game, starts execution.
 ├── physics
-│   ├── collisions.rs            # Handles collision detection between entities and objects.
-│   ├── gravity.rs               # Simulates gravity and jump mechanics for Dave.
-│   └── physics.rs               # Manages overall physics engine (gravity, movement, forces).
+│   ├── collisions.rs            # Provides funs related to collision detection between entities
+│   ├── gravity.rs               # handles gravity
+│   └── physics.rs               # Calls gravity, made it modular in order to call other functions as well
 ├── render
 │   ├── renderer.rs              # Handles rendering logic, drawing sprites to the screen.
-│   └── tile_atlas.rs            # Maps tile IDs to textures for rendering.
+│   └── tile_atlas.rs            # Maps tile IDs to textures for rendering, stores texture offsets and functions
 └── resources
     ├── bullet.rs                # Bullet mechanics (firing, movement, collisions).
     ├── camera.rs                # Camera system, follows player and updates view.
     ├── dave.rs                  # Main player character (Dave) logic, movement, and state.
-    ├── direction.rs             # Defines movement directions (left, right, up, down).
+    ├── direction.rs             # Enum for directions (left, right, up, down) and functions
     └── enemy.rs                 # Enemy behavior, movement, and attack logic.
 
 ```
