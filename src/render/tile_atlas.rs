@@ -4,6 +4,7 @@ use std::sync::LazyLock;
 
 use crate::{
     config::{CUP_TILES, DAVE_DEFAULT_TILE, SCALE},
+    game::dave::Dave,
     resources::direction::{self, Direction},
 };
 
@@ -178,6 +179,11 @@ pub struct TileAtlas;
 impl TileAtlas {
     /// ✅ Retrieves a `Rect` for a given tile ID
     pub fn get_rect(tile_num: u8) -> Rect {
+        *TILE_MAP.get(&tile_num).unwrap()
+    }
+
+    pub fn get_animation_tile(dave: &Dave) -> Rect {
+        let tile_num = dave.animations[&dave.current_animation].current_tile();
         *TILE_MAP.get(&tile_num).unwrap()
     }
 

@@ -51,3 +51,9 @@ pub mod utils {
     pub mod logger;
     pub mod math;
 }
+
+// Animations module
+pub mod animation {
+    pub mod animation;
+    pub mod animation_registry;
+}

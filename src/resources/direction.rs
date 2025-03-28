@@ -1,16 +1,11 @@
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Direction {
     Left,
     Right,
     Up,
     Down,
+    #[default]
     Chill,
-}
-
-impl Default for Direction {
-    fn default() -> Self {
-        Direction::Chill
-    }
 }
 
 impl Direction {

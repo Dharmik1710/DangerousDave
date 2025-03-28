@@ -89,8 +89,13 @@ impl Renderer {
     fn render_dave(&mut self, dave: &Dave, texture: &Texture) {
         // render dave
         if dave.is_alive {
-            let src_rect = TileAtlas::get_dave();
-            let dest_rect = Rect::new(dave.px as i32, dave.py as i32, DAVE_CHILL_W, DAVE_CHILL_H);
+            let src_rect = TileAtlas::get_animation_tile(dave);
+            let dest_rect = Rect::new(
+                dave.px as i32,
+                dave.py as i32,
+                src_rect.width() * SCALE,
+                src_rect.height() * SCALE,
+            );
             if let Err(e) = self.canvas.copy(texture, src_rect, dest_rect) {
                 eprintln!("Failed to render dave: {}", e);
             }

@@ -20,6 +20,9 @@ impl GameManager {
         // Update camera
         Camera::update(state);
 
+        // update dave's animation
+        state.dave.update_animation();
+
         // apply game rules
         GameRules::apply_rules(state);
     }

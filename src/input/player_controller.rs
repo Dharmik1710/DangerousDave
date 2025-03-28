@@ -17,6 +17,7 @@ impl PlayerController {
     }
 
     fn handle_movement(state: &mut GameState, input: &InputHandler) {
+        let mut is_idle = true;
         if input.is_key_pressed(Keycode::A) || input.is_key_pressed(Keycode::Left) {
             let rect = state.dave.get_rect(Direction::Left);
             if !CollisionDetector::check_solid_tile_collision(
@@ -26,6 +27,7 @@ impl PlayerController {
                 Direction::Left,
             ) {
                 state.dave.move_left();
+                is_idle = false;
             }
         }
 
@@ -38,12 +40,16 @@ impl PlayerController {
                 Direction::Right,
             ) {
                 state.dave.move_right();
+                is_idle = false;
             }
         }
 
         if input.is_key_pressed(Keycode::W) || input.is_key_pressed(Keycode::Up) {
             state.dave.jump();
+            is_idle = false;
         }
+
+        state.dave.set_idle(is_idle);
     }
 
     fn handle_elevated_movement(state: &mut GameState, input: &InputHandler) {
