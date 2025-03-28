@@ -165,7 +165,7 @@ impl Dave {
     pub fn init_dave_position(&mut self, level_num: u8) {
         let dave_init_position = Initialize::get_dave_init_pos(level_num);
         self.px = dave_init_position.0 * GAME_TILE_SIZE;
-        self.py = dave_init_position.1 * GAME_TILE_SIZE;
+        self.py = (dave_init_position.1 + 1) * GAME_TILE_SIZE;
     }
 
     pub fn update_position(&mut self, x_shift: i32) {
