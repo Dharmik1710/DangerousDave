@@ -172,6 +172,7 @@ impl Dave {
     pub fn toggle_jetpack(&mut self) {
         if self.jetpack > 0 {
             self.is_jetpack_active = !self.is_jetpack_active;
+            self.set_animation();
         }
     }
 
